@@ -9,6 +9,9 @@
           </div>
           <div class="login_code"></div>
         </div>
+        <div>
+          
+        </div>
       </div>
     </div>
   </div>
@@ -22,6 +25,7 @@ onMounted(() => {});
 </script>
 <style lang="scss" scoped>
 .pcLogin {
+  background: url('@/assets/img/pcLogin/bg.png') no-repeat 50% 50%;
   height: 100%;
   display: flex;
   flex-direction: column;
@@ -33,19 +37,25 @@ onMounted(() => {});
     align-items: center;
     .login_box{
       width: 400px;
+      padding: 10px;
+      border-radius: 5px;
+      background: #fff;
       .login_top{
         display: flex;
         align-items: center;
-        height: 80px;
         .login_tabs{
           width: 60%;
           display: flex;
           .login_tab{
             width: 50%;
+            text-align: center;
+            height: 80px;
+            line-height: 80px;
           }
         }
         .login_code{
           width: 40%;
+          height: 80px;
         }
       }
     }
