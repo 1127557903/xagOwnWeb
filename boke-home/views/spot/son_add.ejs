@@ -1,0 +1,230 @@
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="/layui/css/layui.css">
+    <script src="/jquery/jquery-3.4.1.min.js"></script>
+    <style>
+        .addbox {
+            margin-right: 50px;
+        }
+        #test1{
+            width: 48px;
+            height: 48px;
+            display: block;
+            background: #ccc;
+            object-fit: cover;
+            background-clip: padding-box;
+            box-sizing: border-box;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="addbox">
+        <form class="layui-form" >
+            <div class="layui-form-item">
+                <label class="layui-form-label">景点图片</label>
+                <div class="layui-upload layui-input-block">
+                    <!-- <button type="button" class="layui-btn-sm layui-btn" style="margin-top: 3px;" id="test1">上传景点图片</button> -->
+                    <div class="layui-upload-list">
+                        <% if(data && data.img) {%>
+                            <img class="layui-upload-img"  id="test1" src="<%= data.img %>" >
+                        <% } else { %>
+                            <img class="layui-upload-img"  id="test1" src="/img/add.png" >
+                        <% } %>
+                        <!-- <p id="demoText"></p> -->
+                    </div>
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <label class="layui-form-label">地点名称</label>
+                <div class="layui-input-block">
+                    <input type="text" id="name" name="name" value="<%=data.name%>" required lay-verify="required" placeholder="请输入地点名称"
+                        autocomplete="off" class="layui-input"
+                        >
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <label class="layui-form-label">标签</label>
+                <div class="layui-input-block">
+                    <% if(data && data.type) {
+                        let arr =  data.type.split(',')
+                    %>
+                        <input type="checkbox" name="type"  title="打卡" <%= arr.findIndex(item => item=='打卡' )< 0 ?'':'checked' %> >
+                        <input type="checkbox" name="type" title="大众" <%= arr.findIndex(item => item=='大众' )< 0 ?'':'checked' %> >
+                        <input type="checkbox" name="type" title="摄影" <%= arr.findIndex(item => item=='摄影' ) < 0 ?'':'checked' %> >
+                        <input type="checkbox" name="type" title="人文" <%= arr.findIndex(item => item=='人文' ) < 0 ?'':'checked' %> >
+                    <% } else { %>
+                        <input type="checkbox" name="type"  title="打卡" checked>
+                        <input type="checkbox" name="type" title="大众">
+                        <input type="checkbox" name="type" title="摄影">
+                        <input type="checkbox" name="type" title="人文">
+                    <%}%>
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <label class="layui-form-label">简介</label>
+                <div class="layui-input-block">
+                    <input type="text" id="text" value="<%=data.text%>" name="text" placeholder="请输入简介" maxlength="50" required lay-verify="required" 
+                        class="layui-input">
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <div class="layui-input-block" style="text-align: center;">
+                    <!-- <button class="layui-btn" lay-submit lay-filter="formDemo" id="submit">立即提交</button> -->
+                    <button class="layui-btn" type="button" onclick="update()" id="submit">立即提交</button>
+                    <button type="reset" class="layui-btn layui-btn-primary">重置</button>
+                </div>
+            </div>
+        </form>
+    </div>
+    <script src="/layui/layui.js"></script>
+    <script>
+        const dataObj = JSON.parse('<%- JSON.stringify(data) %>')
+        var url = '/admin/spot/son_add'
+        if (dataObj.id) {
+            url = '/admin/spot/son_update'
+        }
+
+        // 修改函数
+        function update(){
+            if (!dataObj.id) {
+                return
+            }
+            let src = $('#test1')[0].src
+            if ('http://localhost:3000'+dataObj.img !== src) {
+                return
+            }
+            parent.layer.load()
+            let name = $('#name').val();
+            let text = $('#text').val();
+            let labelArr = $('input[name="type"]')
+            let label = []
+            for(item of labelArr){
+                if (item.checked){
+                    label.push(item.title)
+                }
+            }
+            let type = label.join('·')
+            let oldImg = dataObj.img
+            let data = {
+                name,
+                text,
+                type,
+                xid:dataObj.id,
+                oldImg
+            }
+            $.post(url,data,function(res){
+                parent.layer.closeAll('loading')
+                    var index = parent.layer.getFrameIndex(window.name); //获取窗口索引
+                    //如果上传失败
+                    if (res.code === '303'){
+                        parent.layer.alert('请填写完整表单',function(i){
+                            parent.layer.close(i);
+                        })
+                        return
+                    }
+                    if (res.code !== '200' && res.code !== '303') {
+                        parent.layer.alert('上传失败',function(i){
+                            parent.layer.close(i);
+                        })
+                        return
+                    }
+                    parent.layer.alert('上传成功',function(i){
+                        parent.layer.close(i);
+                        parent.layer.close(index); // 调用父级关闭当前窗口
+                        $('#son iframe',parent.document)[0].contentWindow.location.reload() // 刷新父窗口
+                    })
+            })
+        }
+
+        layui.use(['form', 'upload'], function () {
+            var form = layui.form;
+            var upload = layui.upload;
+
+            //常规使用 - 普通图片上传
+            var uploadInst = upload.render({
+                elem: '#test1',
+                url //此处用的是第三方的 http 请求演示，实际使用时改成您自己的上传接口即可。
+,
+                bindAction:'#submit',
+                acceptMime: 'image/*',
+                auto:false,
+                data: {
+                    name: function(){
+                        return $('#name').val();
+                    },
+                    text: function(){
+                        return $('#text').val();
+                    },
+                    type:  function(){
+                        let labelArr = $('input[name="type"]')
+                        let label = []
+                        for(item of labelArr){
+                            if (item.checked){
+                                label.push(item.title)
+                            }
+                        }
+                        return label.join(',')
+                    },
+                    id: '<%= id %>',
+                    xid: function(){
+                        if (dataObj.id) {
+                            return dataObj.id
+                        } else {
+                            return ''
+                        }
+                    }
+                },
+                choose: function (obj) {
+                    //预读本地文件示例，不支持ie8
+                    obj.preview(function (index, file, result) {
+                        console.log(result)
+                        $('#test1').attr('src', result); //图片链接（base64）
+                    });
+                },
+                before: function(){
+                    imgLoading = layer.load(); //风格1的加载
+                },
+                done: function (res) {
+                    layer.closeAll('loading')
+                    var index = parent.layer.getFrameIndex(window.name); //获取窗口索引
+                    //如果上传失败
+                    if (res.code === '303'){
+                        layer.alert('请填写完整表单',function(i){
+                            layer.close(i);
+                        })
+                        return
+                    }
+                    if (res.code !== '200' && res.code !== '303') {
+                        layer.alert('上传失败',function(i){
+                            layer.close(i);
+                        })
+                        return
+                    }
+                    layer.alert('上传成功',function(i){
+                        layer.close(i);
+                        parent.layer.close(index); // 调用父级关闭当前窗口
+                        $('#son iframe',parent.document)[0].contentWindow.location.reload() // 刷新父窗口
+                    })
+                },
+                error: function () {
+                    // //演示失败状态，并实现重传
+                    // var demoText = $('#demoText');
+                    // demoText.html(
+                    //     '<span style="color: #FF5722;">上传失败</span> <a class="layui-btn layui-btn-xs demo-reload">重试</a>'
+                    // );
+                    // demoText.find('.demo-reload').on('click', function () {
+                    //     uploadInst.upload();
+                    // });
+                }
+            });
+        });
+    </script>
+</body>
+
+</html>

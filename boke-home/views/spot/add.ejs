@@ -1,0 +1,440 @@
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="/layui/css/layui.css">
+    <script src="/jquery/jquery-3.4.1.min.js"></script>
+    <style>
+        .addbox {
+            margin-right: 50px;
+        }
+        #test1{
+            width: 48px;
+            height: 48px;
+            display: block;
+            background: #ccc;
+            object-fit: cover;
+            background-clip: padding-box;
+            box-sizing: border-box;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="addbox">
+        <form class="layui-form" >
+            <div class="layui-form-item">
+                <label class="layui-form-label">景点图片</label>
+                <div class="layui-upload-list">
+                    <% if(data && data.img) {%>
+                        <img class="layui-upload-img"  id="test1" src="<%= data.img %>" >
+                    <% } else { %>
+                        <img class="layui-upload-img"  id="test1" src="/img/add.png" >
+                    <% } %>
+                    <!-- <p id="demoText"></p> -->
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <label class="layui-form-label">地点名称</label>
+                <div class="layui-input-block">
+                    <input type="text" id="name" value="<%= data.name %>" name="name" required lay-verify="required" placeholder="请输入地点名称(enter搜索地点)"
+                        autocomplete="off" onkeydown="getAddress(event)" onblur="checkAddress()" class="layui-input"
+                        list="options">
+                    <datalist id="options" Autocomplete="on">
+                    </datalist>
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <label class="layui-form-label">地址</label>
+                <div class="layui-input-block">
+                    <input type="text" id="address" value="<%= data.address %>" name="address" placeholder="由地址名称确定" required lay-verify="required" disabled
+                        class="layui-input">
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <label class="layui-form-label">纬度</label>
+                <div class="layui-input-block">
+                    <input type="number" id="lat" value="<%= data.lng_lat ? data.lng_lat.split(',')[1]:'' %>" name="lat" placeholder="由地址名称确定" required lay-verify="required" disabled
+                        class="layui-input">
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <label class="layui-form-label">经度</label>
+                <div class="layui-input-block">
+                    <input type="number" value="<%= data.lng_lat ? data.lng_lat.split(',')[0]:'' %>" id="lng" name="lng" placeholder="由地址名称确定" required lay-verify="required" disabled
+                        class="layui-input">
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <label class="layui-form-label">标签</label>
+                <div class="layui-input-block">
+                    <% if(data && data.label) {
+                        let arr =  data.label.split(',')
+                    %>
+                        <input type="checkbox" name="label"  title="打卡" <%= arr.findIndex(item => item=='打卡' )< 0 ?'':'checked' %> >
+                        <input type="checkbox" name="label" title="大众" <%= arr.findIndex(item => item=='大众' )< 0 ?'':'checked' %> >
+                        <input type="checkbox" name="label" title="摄影·人文" <%= arr.findIndex(item => item=='摄影·人文' ) < 0 ?'':'checked' %> >
+                    <% } else { %>
+                        <input type="checkbox" name="label"  title="打卡" checked>
+                        <input type="checkbox" name="label" title="大众">
+                        <input type="checkbox" name="label" title="摄影·人文">
+                    <%}%>
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <label class="layui-form-label">类型</label>
+                <div class="layui-input-block">
+                    <% if(data && data.play) {
+                        let arr =  data.play.split('·')
+                    %>  
+                        <input type="radio" name="type"  title="雪山" <%= arr.findIndex(item => item=='雪山' )< 0 ?'':'checked' %> >
+                        <input type="radio" name="type" title="沙滩"  <%= arr.findIndex(item => item=='沙滩' )< 0 ?'':'checked' %> >
+                        <input type="radio" name="type" title="山林" <%= arr.findIndex(item => item=='山林' )< 0 ?'':'checked' %> >
+                        <input type="radio" name="type" title="古镇" <%= arr.findIndex(item => item=='古镇' )< 0 ?'':'checked' %> >
+                        <input type="radio" name="type" title="美食" <%= arr.findIndex(item => item=='美食' )< 0 ?'':'checked' %> >
+                    <% } else { %>
+                        <input type="radio" name="type"  title="雪山">
+                        <input type="radio" name="type" title="沙滩" checked>
+                        <input type="radio" name="type" title="山林">
+                        <input type="radio" name="type" title="古镇">
+                        <input type="radio" name="type" title="美食">
+                    <%}%>
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <label class="layui-form-label">游玩方式</label>
+                <div class="layui-input-block">
+                    <% if(data && data.play) {
+                        let arr =  data.play.split('·')
+                    %>  
+                        <input type="radio" name="play"  title="步行" <%= arr.findIndex(item => item=='步行' )< 0 ?'':'checked' %> >
+                        <input type="radio" name="play" title="缆车"  <%= arr.findIndex(item => item=='缆车' )< 0 ?'':'checked' %> >
+                        <input type="radio" name="play" title="驾车" <%= arr.findIndex(item => item=='驾车' )< 0 ?'':'checked' %> >
+                    <% } else { %>
+                        <input type="radio" name="play" title="步行" checked>
+                        <input type="radio" name="play" title="缆车" >
+                        <input type="radio" name="play" title="驾车" >
+                    <%}%>
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <label class="layui-form-label">游玩天数</label>
+                <div class="layui-input-block">
+                    <input type="number" id="days" value="<%= data.days %>" name="days" placeholder="请输入游玩天数" required lay-verify="required" 
+                        class="layui-input">
+                </div>
+            </div>
+            <div class="layui-form-item layui-form-text">
+                <label class="layui-form-label">印象</label>
+                <div class="layui-input-block">
+                  <textarea id="impression"  name="impression" placeholder="请输入印象" class="layui-textarea" required><%= data.impression %></textarea>
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <label class="layui-form-label">简介</label>
+                <div class="layui-input-block">
+                    <input type="text" id="symbol" value="<%= data.symbol %>" name="symbol" placeholder="请输入简介" maxlength="50" required lay-verify="required" 
+                        class="layui-input">
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <div class="layui-input-block" style="text-align: center;">
+                    <!-- <button class="layui-btn" lay-submit lay-filter="formDemo" id="submit">立即提交</button> -->
+                    <button class="layui-btn" type="button" onclick="update()" id="submit">立即提交</button>
+                    <button type="reset" class="layui-btn layui-btn-primary">重置</button>
+                </div>
+            </div>
+        </form>
+    </div>
+    <script src="/layui/layui.js"></script>
+    <script>
+        // 根据是否有数据判断是新增还是修改
+        const dataObj = JSON.parse('<%- JSON.stringify(data) %>')
+        var url = '/admin/spot/adds'
+        if (dataObj.id) {
+            url = '/admin/spot/update'
+        }
+
+        function update(){
+            if(!dataObj.id){
+                return
+            }
+            let src = $('#test1')[0].src
+            console.log(src)
+            if (src !==  'http://localhost:3000'+dataObj.img) {
+                return
+            }
+            parent.layer.load()
+            let name = $('#name').val();
+            let lat = $('#lat').val();
+            let lng =  $('#lng').val();
+            let address = $('#address').val();
+            let typeArr = $('input[name="type"]')
+            let playArr = $('input[name="play"]')
+            let plays = []
+            for(item of typeArr){
+                if (item.checked){
+                    plays.push(item.title)
+                }
+            }
+            for(item of playArr){
+                if (item.checked){
+                    plays.push(item.title)
+                }
+            }
+            let play =  plays.join('·')
+            let labelArr = $('input[name="label"]')
+            let labels = []
+            for(item of labelArr){
+                if (item.checked){
+                    labels.push(item.title)
+                }
+            }
+            let label = labels.join(',')
+            let days = $('#days').val();
+            let impression=$('#impression').val();
+            let symbol= $('#symbol').val();
+            let data = {
+                id:dataObj.id,
+                name,
+                lng,
+                lat,
+                address,
+                play,
+                days,
+                impression,
+                symbol,
+                label,
+                oldImg
+            }
+            $.post(url,data,function(res){
+                parent.layer.closeAll('loading')
+                    var index = parent.layer.getFrameIndex(window.name); //获取窗口索引
+                    //如果上传失败
+                    if (res.code === '303'){
+                        parent.layer.alert('请填写完整表单',function(i){
+                            parent.layer.close(i);
+                        })
+                        return
+                    }
+                    if (res.code !== '200' && res.code !== '303') {
+                        parent.layer.alert(res.msg,function(i){
+                            parent.layer.close(i);
+                        })
+                        return
+                    }
+                    parent.layer.alert('上传成功',function(i){
+                        parent.layer.close(i);
+                        parent.layer.close(index); // 调用父级关闭当前窗口
+                        parent.location.reload() // 刷新父窗口
+                    })
+            })
+
+        }
+
+        // 定义一个address 存储数据
+        var address = []
+        function checkAddress() {
+            console.log(111)
+            let value = $('#name').val()
+            let res = address.find(item => item.name == value)
+            if (!res) {
+                return
+            }
+            let addresss = res.address
+            let {
+                lat,
+                lng,
+            } = res.location
+            $('#lat').val(lat)
+            $('#lng').val(lng)
+            $('#address').val(addresss)
+        }
+
+        // 地点查询
+        function getAddress(event) {
+            let value = $('#name').val()
+            if (event.keyCode !== 13) {
+                return
+            }
+            event.preventDefault()
+            let data = {
+                ak: 'PYwrQ1BnS3KEYSbhoGEjvjVPaYyxGsS1',
+                region: '达州',
+                query: value,
+                output: 'json',
+                page_size: 20,
+                page_num: 0,
+                scope: 1,
+                coord_type: 3
+            }
+            let url = "http://api.map.baidu.com/place/v2/search"
+            $.ajax({
+                type: "get", //请求方式
+                async: true, //是否异步
+                url,
+                dataType: "jsonp", //跨域json请求一定是jsonp
+                data, //请求参数
+                success: function (data) {
+                    //请求成功处理，和本地回调完全一样
+                    console.log($('#options'), 'data')
+                    let res = data.results
+                    address = res
+                    let str = ''
+                    res.forEach((item, index) => {
+                        str += `<option value="${item.name}" >${item.address}</option>`
+                    })
+                    $('#name').val('')
+                    $('#options').html(str)
+                },
+                complete: function () {
+                    //请求完成的处理
+                },
+                error: function () {
+                    //请求出错处理
+                }
+            })
+
+        }
+        layui.use(['form', 'upload'], function () {
+            var form = layui.form;
+            var upload = layui.upload;
+            //监听提交
+            // form.on('submit(formDemo)', function (data) {
+            //     $.post("/admin/spot/add", data.field, function (result) {
+            //         console.log(result, '数据')
+            //     });
+            //     var index = parent.layer.getFrameIndex(window.name); //获取窗口索引
+            //     parent.layer.close(index); // 调用父级关闭当前窗口
+            //     parent.location.reload(); // 刷新父窗口
+            //     return false;
+            //     console.log(111)
+            // });
+
+            //常规使用 - 普通图片上传
+            var uploadInst = upload.render({
+                elem: '#test1',
+                url //此处用的是第三方的 http 请求演示，实际使用时改成您自己的上传接口即可。
+,
+                bindAction:'#submit',
+                acceptMime: 'image/*',
+                auto:false,
+                data: {
+                    name: function(){
+                        return $('#name').val();
+                    },
+                    lat: function(){
+                        return $('#lat').val();
+                    },
+                    lng: function(){
+                        return $('#lng').val();
+                    },
+                    address: function(){
+                        return $('#address').val();
+                    },
+                    play: function(){
+                        let typeArr = $('input[name="type"]')
+                        let playArr = $('input[name="play"]')
+                        let play = []
+                        for(item of typeArr){
+                            if (item.checked){
+                                play.push(item.title)
+                            }
+                        }
+                        for(item of playArr){
+                            if (item.checked){
+                                play.push(item.title)
+                            }
+                        }
+                        return play.join('·')
+                    },
+                    label:  function(){
+                        let labelArr = $('input[name="label"]')
+                        let label = []
+                        for(item of labelArr){
+                            if (item.checked){
+                                label.push(item.title)
+                            }
+                        }
+                        return label.join(',')
+                    },
+                    days: function(){
+                        return $('#days').val();
+                    },
+                    impression: function(){
+                        return $('#impression').val();
+                    },
+                    symbol: function(){
+                        return $('#symbol').val();
+                    },
+                    oldImg: dataObj.img,
+                    id: dataObj.id
+                },
+                choose: function (obj) {
+                    //预读本地文件示例，不支持ie8
+                    obj.preview(function (index, file, result) {
+                        $('#test1').attr('src', result); //图片链接（base64）
+                    });
+                },
+                before: function (obj) {
+                    imgLoading = layer.load(1); //风格1的加载
+                    //预读本地文件示例，不支持ie8
+                    // obj.preview(function (index, file, result) {
+                    //     $('#demo1').attr('src', result); //图片链接（base64）
+                    // });
+
+                    // element.progress('demo', '0%'); //进度条复位
+                    // layer.msg('上传中', {
+                    //     icon: 16,
+                    //     time: 0
+                    // });
+                },
+                done: function (res) {
+                    layer.closeAll('loading')
+                    var index = parent.layer.getFrameIndex(window.name); //获取窗口索引
+                    //如果上传失败
+                    if (res.code === '303'){
+                        layer.alert('请填写完整表单',function(i){
+                            layer.close(i);
+                        })
+                        return
+                    }
+                    if (res.code !== '200' && res.code !== '303') {
+                        layer.alert(res.msg,function(i){
+                            layer.close(i);
+                        })
+                        return
+                    }
+                    layer.alert('上传成功',function(i){
+                        layer.close(i);
+                        parent.layer.close(index); // 调用父级关闭当前窗口
+                        parent.location.reload(); // 刷新父窗口
+                    })
+                },
+                error: function () {
+                    // //演示失败状态，并实现重传
+                    // var demoText = $('#demoText');
+                    // demoText.html(
+                    //     '<span style="color: #FF5722;">上传失败</span> <a class="layui-btn layui-btn-xs demo-reload">重试</a>'
+                    // );
+                    // demoText.find('.demo-reload').on('click', function () {
+                    //     uploadInst.upload();
+                    // });
+                }
+            });
+        });
+        //     //进度条
+        //     ,progress: function(n, elem, e){
+        //       element.progress('demo', n + '%'); //可配合 layui 进度条元素使用
+        //       if(n == 100){
+        //         layer.msg('上传完毕', {icon: 1});
+        //       }
+        //     }
+        //   });
+    </script>
+</body>
+
+</html>

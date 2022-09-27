@@ -1,0 +1,1150 @@
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="/layui/css/layui.css">
+    <script src="/jquery/jquery-3.4.1.min.js"></script>
+    <style>
+        * {
+            padding: 0;
+            margin: 0;
+        }
+
+        .spot {
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        .botttom {
+            flex: 1;
+            display: flex;
+            overflow: hidden;
+            /* flex-direction: column; */
+        }
+
+        .layui-table-view {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            height: unset !important;
+        }
+
+        .layui-table-box {
+            position: relative;
+            overflow-y: scroll;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .layui-table-total {
+            height: 0px;
+        }
+
+        .layui-table-body {
+            flex: 1;
+        }
+
+        .layui-table-cell {
+            height: unset;
+            padding: 0;
+            text-align: center;
+        }
+
+        .upload-show-img{
+            width: 100px;
+            height: 100px;
+            object-fit: cover;
+            background-clip: padding-box;
+            box-sizing: border-box;
+            display: block;
+        }
+
+        #ownimg {
+            display: block;
+            /* background: #ccc; */
+            object-fit: cover;
+            background-clip: padding-box;
+            box-sizing: border-box;
+        }
+        .upload-img-box{
+            position: relative;
+        }
+        .upload-img-box:hover .upload-img-delete{
+            display: block;
+        }
+        .upload-img-delete{
+            position:absolute;
+            display: none;
+            top: 10px;
+            right: 10px;
+            width: 30px;
+            height: 30px;
+            background: url('/img/delete.png');
+        }
+        .food-box{
+            width: 150px;
+            margin-right: 50px;
+            margin-bottom: 10px;
+        }
+        .food-box:nth-of-type(4n){
+            margin-right: 0;
+        }
+        .upload-food-img{
+            width:150px;
+            height: 150px;
+        }
+        .food-name{
+            height: 40px;
+            width: 100%;
+            font-size: 18px;
+            line-height: 40px;
+        }
+        .adds-box{
+            /* background: url('/img/add-bg.png') no-repeat 0% 0%; */
+            /* background-size: cover; */
+            border: 1px dashed #03a9f4;
+            width: 100%;
+            height: 100px;
+            font-size: 80px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #03a9f4;
+        }
+        .room-box{
+            background: #fff;
+            padding: 10px;
+            display: flex;
+            font-size: 14px;
+            border: 1px solid #03a9f4;
+            margin: 5px 0;
+            position: relative;
+        }
+        .delete-room{
+            position: absolute;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            top: 0;
+            right: 0;
+            height: 100%;
+            width: 0px;
+            background: red;
+            transition: all .5s;
+        }
+        .room-box:hover .delete-room{
+            width: 40px;
+        }
+        .delete-room img{
+            width: 32px;
+            height: 32px;
+        }
+        .room-box .left{
+            width: 100px;
+            height: 100px;
+        }
+        .room-box .right{
+            flex: 1;
+            padding-left: 20px;
+        }
+        .room-box .right .roomName{
+            font-size: 18px;
+            font-weight: 800;
+        }
+        .room-box .right > div {
+            margin-bottom: 5px;
+        }
+        .type-box span{
+            margin-right: 10px;
+        }
+        .price-box{
+            margin-right: 10px;
+        }
+        .cancelRule{
+            color: rgb(0, 81, 255);
+        }
+        .rmb{
+            font-size: 16px;
+            color: red;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="spot">
+        <div class="all_search">
+            <div class="layui-form-item" style="margin-top: 15px;">
+
+                <div class="layui-inline">
+                    <label class="layui-form-label">名称</label>
+                    <div class="layui-input-inline" style="width: 200px;">
+                        <input type="text" id="searchName" name="searchName" autocomplete="off" class="layui-input">
+                    </div>
+                </div>
+
+                <div class="layui-inline">
+                    <label class="layui-form-label">标签</label>
+                    <div class="layui-input-inline" style="width: 200px;">
+                      <select name="searchType" style="width: 100%;" class="layui-select" id="searchType" >
+                        <option value=""></option>
+                        <option value="经济型">经济型</option>
+                        <option value="高档型">高档型</option>
+                        <option value="舒适型">舒适型</option>
+                      </select>
+                    </div>
+                </div>
+
+                <!-- <div class="layui-inline">
+                    <label class="layui-form-label">发布时间</label>
+                    <div class="layui-input-inline" style="width: 200px;">
+                        <input type="text" id="create_time" name="create_time" autocomplete="off" class="layui-input">
+                    </div>
+                </div> -->
+
+                <div class="layui-inline" style="text-align: right;">
+                    <button class="layui-btn" id="search">查询</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="botttom">
+            <table class="layui-hide" id="demo" lay-filter="test"></table>
+            <script type="text/html" id="barDemo">
+                <a class="layui-btn layui-btn-xs" lay-event="typechange">设置套房</a>
+            </script>
+        </div>
+    </div>
+
+    <div id="changeRoom" style="display: none;">
+        <div id="out-box" style="padding: 20px;">
+            <div class="adds-box" id="adds-box" >
+                +
+            </div>
+        </div>   
+    </div>
+
+    <!-- 新增页面 -->
+    <div id="add" style="display: none;margin-right: 50px;">
+        <form class="layui-form">
+            <div class="layui-form-item">
+                <label class="layui-form-label">主题图片</label>
+                <div class="layui-upload-list">
+                    <img class="layui-upload-img upload-show-img" id="ownimg" src="/img/add2.png">
+                </div>
+            </div>
+
+            <div class="layui-form-item">
+                <label class="layui-form-label">酒店名称</label>
+                <div class="layui-input-block">
+                    <input type="text" id="name" value="" name="name" required lay-verify="required" placeholder="请输入酒店名称"
+                        autocomplete="off" oninput="handlerSetTime()" onblur="checkAddress()" class="layui-input"
+                        list="options">
+                    <datalist id="options" Autocomplete="on">
+                    </datalist>
+                </div>
+            </div>
+
+            <div class="layui-form-item">
+                <label class="layui-form-label">地址</label>
+                <div class="layui-input-block">
+                    <input type="text" id="address" disabled value="" name="address" placeholder="请选择地址" required
+                        lay-verify="required" class="layui-input">
+                </div>
+            </div>
+
+            <div class="layui-form-item">
+                <label class="layui-form-label">最低价格</label>
+                <div class="layui-input-block">
+                    <input type="number" id="price" value="" name="price" placeholder="请输入最低价格" maxlength="10" required
+                        lay-verify="required" class="layui-input">
+                </div>
+            </div>
+
+            <div class="layui-form-item">
+                <label class="layui-form-label">酒店简评</label>
+                <div class="layui-input-block">
+                    <input type="text" id="slogan" value="" name="slogan" placeholder="请输入酒店简评" required
+                      maxlength="20"   lay-verify="required" class="layui-input">
+                </div>
+            </div>
+
+            <div class="layui-form-item" id="startDom">
+                <label class="layui-form-label">始营年份</label>
+                <div class="layui-input-block">
+                    <input type="text" id="start" value="" name="start" placeholder="请输入开始时间" required
+                        lay-verify="required" class="layui-input">
+                </div>
+            </div>
+
+
+            <div class="layui-form-item">
+                <label class="layui-form-label">酒店类型</label>
+                <div class="layui-input-block">
+                  <select name="type" id="type" lay-verify="required" required>
+                    <option value=""></option>
+                    <option value="经济型">经济型</option>
+                    <option value="高档型">高档型</option>
+                    <option value="舒适型">舒适型</option>
+                  </select>
+                </div>
+            </div>
+
+            <div class="layui-form-item">
+                <label class="layui-form-label">标签</label>
+                <div class="layui-input-block">
+                    <input type="checkbox" name="label" title="停车场">
+                    <input type="checkbox" name="label" title="近湖景">
+                    <input type="checkbox" name="label" title="近地铁">
+                    <input type="checkbox" name="label" title="公益商家">
+                    <input type="checkbox" name="label" title="影音酒店">
+                </div>
+            </div>
+
+            <div class="layui-form-item">
+                <label class="layui-form-label">服务</label>
+                <div class="layui-input-block">
+                    <input type="checkbox" name="service" title="有收费停车场">
+                    <input type="checkbox" name="service" title="行李寄存免费">
+                </div>
+            </div>
+
+            <div class="layui-form-item">
+                <label class="layui-form-label">展示图片</label>
+                <div class="layui-upload-list" style="display: flex;" >
+                    <img class="layui-upload-img upload-show-img" id="showImg" src="/img/add2.png">
+                    <div id="imgBox" style="display: flex;">
+
+                    </div>
+                </div>
+            </div>
+
+            <div class="layui-form-item">
+                <div class="layui-input-block" style="text-align: center;">
+                    <!-- <button class="layui-btn" lay-submit lay-filter="formDemo" id="submit">立即提交</button> -->
+                    <button class="layui-btn" type="button" onclick="update()" id="submit">立即提交</button>
+                    <button type="reset" onclick="reset()" class="layui-btn layui-btn-primary">重置</button>
+                </div>
+            </div>
+        </form>
+    </div>
+
+    <!-- 新增房源 -->
+    <div id="addRoom" style="display: none;margin-right: 50px;">
+        <form class="layui-form">
+            <div class="layui-form-item">
+                <label class="layui-form-label">房型图片</label>
+                <div class="layui-upload-list">
+                    <img class="layui-upload-img upload-show-img upload-food-img"  id="roomImg" src="/img/add2.png">
+                </div>
+            </div>
+
+            <div class="layui-form-item">
+                <label class="layui-form-label">房型名称</label>
+                <div class="layui-input-block">
+                    <input type="text" id="roomName" value="" name="roomName" placeholder="请输入房型名称" required
+                        lay-verify="required" class="layui-input">
+                </div>
+            </div>
+
+            <div class="layui-form-item">
+                <label class="layui-form-label">房型价格</label>
+                <div class="layui-input-block">
+                    <input type="number" id="roomPrice" value="" name="roomPrice" placeholder="请输入房型价格" maxlength="10" required
+                        lay-verify="required" class="layui-input">
+                </div>
+            </div>
+
+            <div class="layui-form-item">
+                <label class="layui-form-label">有无早餐</label>
+                <div class="layui-input-block">
+                  <select name="breakfast" id="breakfast" lay-verify="required" required>
+                    <option value=""></option>
+                    <option value="有早餐">有早餐</option>
+                    <option value="无早餐">无早餐</option>
+                  </select>
+                </div>
+            </div>
+
+            <div class="layui-form-item">
+                <label class="layui-form-label">床型</label>
+                <div class="layui-input-block">
+                  <select name="bed" id="bed" lay-verify="required" required>
+                    <option value=""></option>
+                    <option value="大床">大床</option>
+                    <option value="双人床">双人床</option>
+                  </select>
+                </div>
+            </div>
+
+            <div class="layui-form-item">
+                <label class="layui-form-label">可住人数</label>
+                <div class="layui-input-block">
+                    <input type="number" id="people" value="" name="people" placeholder="请输入可住人数" maxlength="10" required
+                        lay-verify="required" class="layui-input">
+                </div>
+            </div>
+
+            <div class="layui-form-item">
+                <label class="layui-form-label">取消规则</label>
+                <div class="layui-input-block">
+                    <input type="text" id="cancelRule" value="" name="cancelRule" placeholder="请输入取消规则" maxlength="10" required
+                        lay-verify="required" class="layui-input">
+                </div>
+            </div>
+
+            <div class="layui-form-item">
+                <label class="layui-form-label">可否吸烟</label>
+                <div class="layui-input-block">
+                  <select name="smoke" id="smoke" lay-verify="required" required>
+                    <option value=""></option>
+                    <option value="可吸烟">可吸烟</option>
+                    <option value="不可吸烟">不可吸烟</option>
+                  </select>
+                </div>
+            </div>
+
+            <div class="layui-form-item">
+                <div class="layui-input-block" style="text-align: center;">
+                    <button class="layui-btn" type="button" id="submitRoom">立即提交</button>
+                </div>
+            </div>
+        </form>
+    </div>
+
+    <script type="text/html" id="img">
+        <img style="height: 100px;width: 100px;object-fit: cover;" src="{{d.titleImg}}" alt="">
+    </script>
+
+    <script src="/layui/layui.js"></script>
+    <script src="/http/uploadFiles.js">         
+    </script>
+    <script>
+        // 定义一个address 存储数据
+        var address = []
+        var timer=null
+        function checkAddress() {
+            let value = $('#name').val()
+            let res = address.find(item => item.name == value)
+            if (!res) {
+                return
+            }
+            let addresss = res.address
+            $('#address').val(addresss)
+        }
+        const handlerSetTime = () => {
+            if(timer){
+                clearTimeout(timer)
+            }
+            timer=setTimeout(()=>{
+                getAddress()
+            },1000)
+        }
+        // 地点查询
+        function getAddress() {
+            let value = $('#name').val()
+            let data = {
+                ak: 'PYwrQ1BnS3KEYSbhoGEjvjVPaYyxGsS1',
+                region: '达州',
+                query: value,
+                output: 'json',
+                page_size: 20,
+                page_num: 0,
+                scope: 1,
+                coord_type: 3
+            }
+            let url = "http://api.map.baidu.com/place/v2/search"
+            $.ajax({
+                type: "get", //请求方式
+                async: true, //是否异步
+                url,
+                dataType: "jsonp", //跨域json请求一定是jsonp
+                data, //请求参数
+                success: function (data) {
+                    //请求成功处理，和本地回调完全一样
+                    let res = data.results
+                    address = res
+                    let str = ''
+                    res.forEach((item, index) => {
+                        str += `<option value="${item.name}" >${item.address}</option>`
+                    })
+                    $('#options').html(str)
+                },
+                complete: function () {
+                    //请求完成的处理
+                },
+                error: function () {
+                    //请求出错处理
+                }
+            })
+
+        }
+    </script>
+    <script>
+        var filesTitle = null
+        var filesShow = {}
+        // 用于判断新增或者修改用url
+        var url = '/admin/delicous/add'
+        // 定义修改data用于判断是否修改
+        var dataObj = {}
+        // 定义一个类型，用于判断新增还是修改
+        var addtype = ''
+        // 定义nidex，用于后面全局关闭弹框
+        var indexs = null
+        var indexs2 = null
+        // 重置添加框数据
+
+        // 设置编辑id
+        var h_id = null
+
+        // 用于判断删除图片
+        var imgArr=[]
+
+
+        // 删除房型
+        function deleteRoom(id){
+            $.get('/admin/hotel/deleteRoom',{id}).then(res => {
+                if(res.code == '200') {
+                    parent.layer.alert('删除成功', function (i) {
+                        selectRoom(h_id)
+                        parent.layer.close(i);
+                    })
+                } else {
+                    parent.layer.alert('删除失败', function (i) {
+                        parent.layer.close(i);
+                    })
+                }
+            })
+        }
+
+        // 删除图片
+        function deleteImg(value){
+            if(addtype == 'add') {
+                delete filesShow[value];
+                $('#'+value).remove()
+            }
+            if(addtype == 'update') {
+                delete filesShow[value];
+                imgArr = imgArr.filter(item => item.id !== value)
+                $('#'+value).remove()
+            }
+        }
+
+        function reset(){
+            filesTitle = null
+            filesShow = {}
+            $('#ownimg').attr('src', '/img/add2.png');
+            $('#name').val('');
+            $('#price').val('');
+            $('#start').val('')
+            $('#type').val('');
+            $('#slogan').val('');
+            let labelArr = $('input[name="label"]')
+            let serviceArr= $('input[name="service"]')
+            $('#address').val('');
+            for (item of labelArr) {
+                $(item).prop("checked", false);
+            }
+            for (item of serviceArr) {
+                $(item).prop("checked", false);
+            }
+            $('#imgBox').html('')
+        }
+
+        // 输入校验
+        function checkinput(){
+            let name = $('#name').val();
+            let price = $('#price').val();
+            let start = $('#start').val()
+            let slogan = $('#slogan').val();
+            let labelArr = $('input[name="label"]')
+            let serviceArr= $('input[name="service"]')
+            let type = $('#type').val();
+            let address = $('#address').val();
+            let labels = []
+            for (item of labelArr) {
+                if (item.checked) {
+                    labels.push(item.title)
+                }
+            }
+            let label = labels.join(',')
+            let services = []
+            for (item of serviceArr) {
+                if (item.checked) {
+                    services.push(item.title)
+                }
+            }
+            let service = services.join(',')
+            let isOver = true
+
+            let checkObj = {name,price,start,type,label,address,slogan}
+            for(item in checkObj){
+                if(!checkObj[item]){
+                    isOver = false
+                }
+            }
+            let params = {name,price,start,type,label,address,slogan,service}
+
+            return {isOver,params}
+        }
+
+        function update() {
+            let {isOver,params} = checkinput()
+            if(!isOver){
+                parent.layer.alert('请填写完整表单', function (i) {
+                    parent.layer.close(i);
+                })
+                return
+            }
+            let filesArr = []
+            if (addtype == 'add') {
+                if(!filesTitle){
+                    parent.layer.alert('请选择标题图片', function (i) {
+                        parent.layer.close(i);
+                    })
+                    return
+                }
+                for(item in filesTitle){
+                    filesArr.push(filesTitle[item])
+                }
+                if(!filesShow){
+                    parent.layer.alert('请选择内容图片', function (i) {
+                        parent.layer.close(i);
+                    })
+                    return
+                }
+                let hadImg = false
+                for(item in filesShow){
+                    filesArr.push(filesShow[item])
+                    hadImg = true
+                }
+                if(!hadImg){
+                    parent.layer.alert('请选择内容图片', function (i) {
+                        parent.layer.close(i);
+                    })
+                    return
+                }
+            }
+            if(addtype == 'update') {
+                let src = $('#ownimg')[0].src
+                let titleImgChange = false
+                if (src !== 'http://localhost:3000' + dataObj.titleImg) {
+                    titleImgChange = true
+                    for(item in filesTitle){
+                        filesArr.push(filesTitle[item])
+                    }
+                }
+                if(!filesShow && imgArr.length == 0){
+                    parent.layer.alert('请选择内容图片', function (i) {
+                        parent.layer.close(i);
+                    })
+                    return
+                }
+                let hadImg = false
+                for(item in filesShow){
+                    filesArr.push(filesShow[item])
+                    hadImg = true
+                }
+                if(!hadImg  && imgArr.length == 0){
+                    parent.layer.alert('请选择内容图片', function (i) {
+                        parent.layer.close(i);
+                    })
+                    return
+                }
+                let newArr = imgArr.map(item => {
+                    return item.img
+                })
+                params={
+                    ...params,
+                    titleImgChange,
+                    imgArr: JSON.stringify(newArr),
+                    id:dataObj.id
+                }
+            }
+            parent.layer.load()
+            uploadFiles(url,filesArr,params).then(res => {
+                parent.layer.closeAll('loading')
+                //如果上传失败
+                if (res.code === '303') {
+                    let msg = res.msg.sqlMessage || res.msg
+                    parent.layer.alert(msg, function (i) {
+                        parent.layer.close(i);
+                    })
+                    return
+                }
+                if (res.code !== '200' && res.code !== '303') {
+                    parent.layer.alert(res.msg, function (i) {
+                        parent.layer.close(i);
+                    })
+                    return
+                }
+                parent.layer.alert(res.msg, function (i) {
+                    parent.layer.close(i);
+                    location.reload() // 刷新父窗口
+                })
+            })
+
+        }
+      
+        function selectRoom(id){
+            parent.layer.load(1)
+            $.get('/admin/hotel/selectRoom',{id}).then(res => {
+                parent.layer.closeAll('loading')
+                $('.room-box').remove()
+                res.data.forEach(item => {
+                    $('#out-box').append(`
+                    <div class="room-box" >
+                        <div onclick="deleteRoom(${item.id})" class="delete-room" >
+                            <img src="/img/delete2.png" >
+                        </div>
+                <div class="left">
+                    <img class="layui-upload-img upload-show-img upload-room-img" src="${item.img}">
+                </div>
+                <div class="right">
+                    <div class="roomName">${item.name}</div>
+                    <div class="type-box">
+                        <span>${item.breakfast}</span>
+                        <span>${item.bed}</span>
+                        <span>${item.people}人入住</span>
+                    </div>
+                    <div class="cancelRule">${item.cancelRule}</div>
+                    <div class="price-box">
+                        <span class="rmb">¥${item.price}</span>
+                        <span>${item.smoke}</span>
+                    </div>
+                </div>
+            </div>`)
+                })
+            })
+        }
+      
+        //加载模块  
+        layui.use(function () { //亦可加载特定模块：layui.use(['layer', 'laydate', function(){
+            //得到各种内置组件
+            var layer = layui.layer //弹层
+                ,
+                laypage = layui.laypage //分页
+                ,
+                table = layui.table //表格
+                ,
+                upload = layui.upload //上传
+                ,
+                element = layui.element //元素操作
+                ,
+                slider = layui.slider //滑块
+                ,
+                dropdown = layui.dropdown, //下拉菜单
+                laydate = layui.laydate, //日期组件
+                form = layui.form
+
+            
+            //执行一个 table 实例
+            table.render({
+                elem: '#demo',
+                height: 420,
+                url: '/admin/hotel/select' //数据接口
+                    ,
+                title: '酒店表',
+                page: true //开启分页
+                    ,
+                toolbar: 'default' //开启工具栏，此处显示默认图标，可以自定义模板，详见文档
+                    ,
+                // toolbar: ['filter', 'print', 'exports'],
+                totalRow: true //开启合计行
+                    ,
+                cols: [
+                    [ //表头
+                        {
+                            type: 'checkbox',
+                            // fixed: 'left'
+                        },
+                        {
+                            field: 'id',
+                            title: 'ID',
+                            width: 80,
+                            sort: true,
+                            // fixed: 'left',
+                            // totalRowText: '合计：'
+                        }, {
+                            field: 'name',
+                            title: '名称',
+                        }, {
+                            field: 'titleImg',
+                            title: '标题图片',
+                            templet: '#img',
+                            style: "height: 100px;text-align: center;"
+                            // totalRow: true 合计开启
+                        // }, {
+                        //     field: 'create_time',
+                        //     title: '创建日期',
+                        }, {
+                            field: 'type',
+                            title: '类型',
+                        }, {
+                            field: 'label',
+                            title: '酒店标签',
+                        }, {
+                            field: 'price',
+                            title: '最低价格',
+                        }, {
+                            field: 'start',
+                            title: '始营年份',
+                        }, {
+                            field: 'slogan',
+                            title: '简介标语',
+                        }, {
+                            field: 'address',
+                            title: '酒店地址',
+                        }, {
+                            field: 'service',
+                            title: '酒店服务',
+                        // }, {
+                        //     field: 'isShow',
+                        //     title: '是否启用',
+                        //     templet: '#isShow',
+                        // }, {
+                        }, 
+                        {
+                            // fixed: 'right',
+                            width: 200,
+                            align: 'center',
+                            toolbar: '#barDemo',
+                            // style:"height: 110px;text-align: center;"
+                        }
+                    ]
+                ]
+            });
+
+            //监听头工具栏事件
+            table.on('toolbar(test)', function (obj) {
+                var checkStatus = table.checkStatus(obj.config.id),
+                    data = checkStatus.data; //获取选中的数据
+                switch (obj.event) {
+                    case 'add':
+                        addtype = 'add'
+                        url = '/admin/hotel/add'
+                        dataObj = {}
+                        reset()
+                        form.render();
+                        //iframe 层
+                        indexs = layer.open({
+                            title: '新增酒店',
+                            type: 1,
+                            area: ['700px', '500px'],
+                            shade: 0.8,
+                            shadeClose: true,
+                            fixed: false,
+                            anim: 1,
+                            content: $(
+                            '#add'), //这里content是一个DOM，注意：最好该元素要存放在body最外层，否则可能被其它的相对元素所影响
+                        });
+                        break;
+                    case 'update':
+                        if (data.length === 0) {
+                            layer.msg('请选择一行');
+                        } else if (data.length > 1) {
+                            layer.msg('只能同时编辑一个');
+                        } else {
+                            addtype = 'update'
+                            dataObj = data[0]
+                            url = '/admin/hotel/update'
+                            // layer.alert('编辑 [id]：' + checkStatus.data[0].id);
+                            $('#ownimg').attr('src', data[0].titleImg);
+
+                            let name = $('#name').val(data[0].name);
+                            let price = $('#price').val(data[0].price);
+                            let start = $('#start').val(data[0].start);
+                            let slogan = $('#slogan').val(data[0].slogan);
+                            let labelArr = $('input[name="label"]')
+                            let serviceArr= $('input[name="service"]')
+                            let type = $('#type').val(data[0].type);
+                            let address = $('#address').val(data[0].address);
+                            let labelCheck = data[0].label.split(',')
+                            for (item of labelArr) {
+                                let res = labelCheck.find(one => one === item.title)
+                                if (res) {
+                                    $(item).prop("checked", true);
+                                } else {
+                                    $(item).prop("checked", false);
+                                }
+                            }
+                            let serviceCheck = data[0].label.split(',')
+                            for (item of serviceArr) {
+                                let res = serviceCheck.find(one => one === item.title)
+                                if (res) {
+                                    $(item).prop("checked", true);
+                                } else {
+                                    $(item).prop("checked", false);
+                                }
+                            }
+
+                            $('#imgBox').html('')
+                            imgArr = data[0].imgArr
+                            imgArr.forEach(item => {
+                                $('#imgBox').append(`
+                                    <div class="upload-img-box">
+                                        <div class="upload-img-delete" onclick="deleteImg('${item.id}')" ></div>
+                                        <img class="layui-upload-img upload-show-img" id="${item.id}" src="${item.img}" / >
+                                    </div>
+                                `)
+                            })
+                            form.render();
+                            indexs = layer.open({
+                                title: '修改酒店',
+                                type: 1,
+                                area: ['700px', '500px'],
+                                shade: 0.8,
+                                shadeClose: true,
+                                fixed: false,
+                                anim: 1,
+                                content: $(
+                                '#add'), //这里content是一个DOM，注意：最好该元素要存放在body最外层，否则可能被其它的相对元素所影响
+                            });
+                        }
+                        break;
+                    case 'delete':
+                        if (data.length === 0) {
+                            layer.msg('请选择一行');
+                        } else {
+                            let ids = checkStatus.data.map(item => item.id)
+                            layer.confirm('确定删除选中数据？', {
+                                icon: 0,
+                                title: '警告'
+                            }, function (index) {
+                                layer.close(index)
+                                layer.load()
+                                $.post('/admin/hotel/delete', {
+                                    ids
+                                }, (res) => {
+                                    layer.closeAll('loading')
+                                    if (!res || res.code !== '200') {
+                                        layer.msg('删除失败');
+                                        return
+                                    }
+                                    layer.alert('删除成功', {
+                                        icon: 1,
+                                        title: '提示'
+                                    }, function (i) {
+                                        layer.close(i)
+                                        reloadData()
+                                    });
+                                })
+                            })
+                        }
+                        break;
+                };
+            });
+
+            //监听行工具事件
+            table.on('tool(test)', function (obj) { //注：tool 是工具条事件名，test 是 table 原始容器的属性 lay-filter="对应的值"
+                var data = obj.data //获得当前行数据
+                    ,
+                    layEvent = obj.event; //获得 lay-event 对应的值
+                    h_id = data.id
+                if (layEvent === 'typechange') {
+                    layer.open({
+                        title: '设置套房',
+                        type: 1,
+                        area: ['500px', '600px'],
+                        shade: 0.8,
+                        shadeClose: true,
+                        fixed: false,
+                        anim: 1,
+                        content: $(
+                        '#changeRoom'), //这里content是一个DOM，注意：最好该元素要存放在body最外层，否则可能被其它的相对元素所影响
+                    });
+                    selectRoom(h_id)
+                }
+            });
+
+
+            //分页
+            laypage.render({
+                elem: 'pageDemo' //分页容器的id
+                    ,
+                count: 1000 //数据总数
+                    ,
+                limit: 10 //每页显示的数据条数
+                    ,
+                skin: '#1E9FFF' //自定义选中色值
+                    //,layout: ['prev', 'page', 'next', 'count', 'limit', 'refresh', 'skip'] //自定义排版
+                    ,
+                jump: function (obj, first) {
+                    if (!first) {
+                        layer.msg('第' + obj.curr + '页', {
+                            offset: 'b'
+                        });
+                    }
+                }
+            });
+
+            // 重新加载函数
+            function reloadData() {
+                table.reload('demo', {
+                    url: '/admin/hotel/select',
+                    where: {
+                        name: function () {
+                            return $('#searchName').val()
+                        },
+                        type: function () {
+                            return $('#searchType').val()
+                        },
+                    } //设定异步数据接口的额外参数
+                    //,height: 300
+                });
+            }
+
+            // 搜索事件
+            $('#search').click(function () {
+                reloadData()
+            })
+
+            laydate.render({ 
+                elem: '#start'
+                ,type: 'year'
+                }
+            )
+
+            var uploadInst = upload.render({
+                elem: '#ownimg',
+                url //此处用的是第三方的 http 请求演示，实际使用时改成您自己的上传接口即可。
+                    ,
+                acceptMime: 'image/*',
+                auto: false,
+                choose: function (obj) {
+                    filesTitle = obj.pushFile();
+                    obj.preview(function (index, file, result) {
+                        $('#ownimg').attr('src', result); //图片链接（base64）
+                    });
+                },
+                error: function () {}
+            });
+
+            var uploadInst1 = upload.render({
+                elem: '#showImg',
+                url //此处用的是第三方的 http 请求演示，实际使用时改成您自己的上传接口即可。
+                    ,
+                acceptMime: 'image/*',
+                multiple: true,
+                auto: false,
+                choose: function (obj) {
+                    filesShow = obj.pushFile();
+                    obj.preview(function (index, file, result) {
+                        $('#imgBox').append(`
+                            <div class="upload-img-box">
+                                <div class="upload-img-delete" id="dl${index}" ></div>
+                                <img class="layui-upload-img upload-show-img" id="${index}" src="${result}" / >
+                            </div>
+                        `)
+                        $('#dl'+index).on("click",()=>{
+                            deleteImg(index)
+                            uploadInst1.config.elem.next()[0].value = '';
+                        })
+                    });
+                },
+                error: function () {}
+            });
+
+            // 新增房间弹窗
+            $('#adds-box').click(()=>{
+                indexs2 =    layer.open({
+                        title: '添加套房',
+                        type: 1,
+                        area: ['400px', '500px'],
+                        shade: 0.8,
+                        shadeClose: true,
+                        fixed: false,
+                        anim: 1,
+                        content: $(
+                        '#addRoom'), //这里content是一个DOM，注意：最好该元素要存放在body最外层，否则可能被其它的相对元素所影响
+                });
+            })
+
+            // 处理新增房间
+            var uploadInst3 = upload.render({
+                elem: '#roomImg',
+                url:'/admin/hotel/addRoom' //此处用的是第三方的 http 请求演示，实际使用时改成您自己的上传接口即可。
+                    ,
+                bindAction: '#submitRoom',
+                acceptMime: 'image/*',
+                multiple: true,
+                auto: false,
+                data: {
+                    roomName: function () {
+                        return $('#roomName').val();
+                    },
+                    price: function () {
+                        return $('#roomPrice').val();
+                    },
+                    breakfast:function () {
+                        return $('#breakfast').val();
+                    },
+                    bed:function () {
+                        return $('#bed').val();
+                    },
+                    people:function () {
+                        return $('#people').val();
+                    },
+                    cancelRule:function () {
+                        return $('#cancelRule').val();
+                    },
+                    smoke:function () {
+                        return $('#smoke').val();
+                    },
+                    id: function(){
+                        return h_id
+                    }
+                },
+                choose: function (obj) {
+                    obj.preview(function (index, file, result) {
+                        $('#roomImg').attr('src',result)
+                    });
+                },
+                before: function (obj) {
+                    imgLoading = layer.load(1); //风格1的加载
+                },
+                done: function (res) {
+                    layer.closeAll('loading')
+                    // var index = parent.layer.getFrameIndex(window.name); //获取窗口索引
+                    //如果上传失败
+                    if (res.code === '303') {
+                        let msg = res.msg.sqlMessage || res.msg
+                        layer.alert(msg, function (i) {
+                            layer.close(i);
+                        })
+                    return
+                        return
+                    }
+                    if (res.code !== '200' && res.code !== '303') {
+                        layer.alert(res.msg, function (i) {
+                            layer.close(i);
+                        })
+                        return
+                    }
+                    layer.alert(res.msg, function (i) {
+                        $('#roomImg').attr('src','/img/add2.png')
+                        $('#roomName').val('');
+                        $('#roomPrice').val('');
+                        $('#breakfast').val('');
+                        $('#bed').val('');
+                        $('#people').val('');
+                        $('#cancelRule').val('');
+                        $('#smoke').val('');
+                        form.render();
+                        selectRoom(h_id)
+                        layer.close(indexs2);
+                        layer.close(i);
+                    })
+                },
+                error: function () {}
+            });
+        });
+    </script>
+</body>
+
+</html>

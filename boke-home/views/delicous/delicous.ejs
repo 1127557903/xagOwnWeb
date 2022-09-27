@@ -1,0 +1,985 @@
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="/layui/css/layui.css">
+    <script src="/jquery/jquery-3.4.1.min.js"></script>
+    <style>
+        * {
+            padding: 0;
+            margin: 0;
+        }
+
+        .spot {
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        .botttom {
+            flex: 1;
+            display: flex;
+            overflow: hidden;
+            /* flex-direction: column; */
+        }
+
+        .layui-table-view {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            height: unset !important;
+        }
+
+        .layui-table-box {
+            position: relative;
+            overflow-y: scroll;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .layui-table-total {
+            height: 0px;
+        }
+
+        .layui-table-body {
+            flex: 1;
+        }
+
+        .layui-table-cell {
+            height: unset;
+            padding: 0;
+            text-align: center;
+        }
+
+        .upload-show-img{
+            width: 100px;
+            height: 100px;
+            object-fit: cover;
+            background-clip: padding-box;
+            box-sizing: border-box;
+            display: block;
+        }
+
+        #ownimg {
+            display: block;
+            /* background: #ccc; */
+            object-fit: cover;
+            background-clip: padding-box;
+            box-sizing: border-box;
+        }
+        .upload-img-box{
+            position: relative;
+        }
+        .upload-img-box:hover .upload-img-delete{
+            display: block;
+        }
+        .upload-img-delete{
+            position:absolute;
+            display: none;
+            top: 10px;
+            right: 10px;
+            width: 30px;
+            height: 30px;
+            background: url('/img/delete.png');
+        }
+        .food-box{
+            width: 150px;
+            margin-right: 50px;
+            margin-bottom: 10px;
+            position: relative;
+        }
+        .delete-food{
+            position: absolute;
+            display: none;
+            top: 5px;
+            right: 5px;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            transition: all .5s;
+        }
+        .delete-food img{
+            width: 32px;
+            height: 32px;
+        }
+        .food-box:hover .delete-food{
+            display: block;
+        }
+        .food-box:nth-of-type(4n){
+            margin-right: 0;
+        }
+        .upload-food-img{
+            width:150px;
+            height: 150px;
+        }
+        .food-name{
+            height: 40px;
+            width: 100%;
+            font-size: 18px;
+            line-height: 40px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="spot">
+        <div class="all_search">
+            <div class="layui-form-item" style="margin-top: 15px;">
+
+                <div class="layui-inline">
+                    <label class="layui-form-label">名称</label>
+                    <div class="layui-input-inline" style="width: 200px;">
+                        <input type="text" id="searchName" name="searchName" autocomplete="off" class="layui-input">
+                    </div>
+                </div>
+
+                <div class="layui-inline">
+                    <label class="layui-form-label">标签</label>
+                    <div class="layui-input-inline" style="width: 200px;">
+                      <select name="searchType" style="width: 100%;" class="layui-select" id="searchType" >
+                        <option value=""></option>
+                        <option value="烤肉">烤肉</option>
+                        <option value="日式烧烤">日式烧烤</option>
+                        <option value="火锅">火锅</option>
+                        <option value="快餐">快餐</option>
+                        <option value="东北菜">东北菜</option>
+                        <option value="湘菜">湘菜</option>
+                        <option value="川菜">川菜</option>
+                        <option value="烤鸭">烤鸭</option>
+                      </select>
+                    </div>
+                </div>
+
+                <!-- <div class="layui-inline">
+                    <label class="layui-form-label">发布时间</label>
+                    <div class="layui-input-inline" style="width: 200px;">
+                        <input type="text" id="create_time" name="create_time" autocomplete="off" class="layui-input">
+                    </div>
+                </div> -->
+
+                <div class="layui-inline" style="text-align: right;">
+                    <button class="layui-btn" id="search">查询</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="botttom">
+            <table class="layui-hide" id="demo" lay-filter="test"></table>
+            <script type="text/html" id="barDemo">
+                <a class="layui-btn layui-btn-xs" lay-event="typechange">添加菜品 </a>
+            </script>
+        </div>
+    </div>
+
+    <div id="changeFood" style="display: none;">
+        <div id="out-box"style="display: flex;width:100%;flex-wrap:wrap;">
+            <div class="food-box" >
+                <img class="layui-upload-img upload-show-img upload-food-img"  id="foodImg" src="/img/add2.png">
+                <div style="display:flex;align-items: center;" >
+                    <input type="text" id="foodName" value="" name="foodName" placeholder="请输入菜品名称" required
+                    lay-verify="required" class="layui-input">
+                    <button class="layui-btn layui-btn-normal layui-btn-sm" id="submitFood" >添加</button>
+                </div>
+            </div>
+        </div>   
+    </div>
+
+    <!-- 新增页面 -->
+    <div id="add" style="display: none;margin-right: 50px;">
+        <form class="layui-form">
+            <div class="layui-form-item">
+                <label class="layui-form-label">主题图片</label>
+                <div class="layui-upload-list">
+                    <img class="layui-upload-img upload-show-img" id="ownimg" src="/img/add2.png">
+                </div>
+            </div>
+
+            <div class="layui-form-item">
+                <label class="layui-form-label">美食名称</label>
+                <div class="layui-input-block">
+                    <input type="text" id="name" value="" name="name" required lay-verify="required" placeholder="请输入美食名称"
+                        autocomplete="off" oninput="handlerSetTime()" onblur="checkAddress()" class="layui-input"
+                        list="options">
+                    <datalist id="options" Autocomplete="on">
+                    </datalist>
+                </div>
+            </div>
+
+            <div class="layui-form-item">
+                <label class="layui-form-label">地址</label>
+                <div class="layui-input-block">
+                    <input type="text" id="address" disabled value="" name="address" placeholder="请选择地址" required
+                        lay-verify="required" class="layui-input">
+                </div>
+            </div>
+
+            <div class="layui-form-item">
+                <label class="layui-form-label">人均价格</label>
+                <div class="layui-input-block">
+                    <input type="number" id="price" value="" name="price" placeholder="请输入人均价格" maxlength="10" required
+                        lay-verify="required" class="layui-input">
+                </div>
+            </div>
+
+            <div class="layui-form-item">
+                <label class="layui-form-label">是否全天</label>
+                <div class="layui-input-block">
+                    <input type="radio" name="isAllDay" lay-filter="isAllDay" title="是" checked>
+                    <input type="radio" name="isAllDay" lay-filter="isAllDay" title="否">
+                </div>
+            </div>
+
+            <div class="layui-form-item" id="beginTimeDom">
+                <label class="layui-form-label">开始营业时间</label>
+                <div class="layui-input-block">
+                    <input type="text" id="beginTime" value="" name="beginTime" placeholder="请输入开始时间" required
+                        lay-verify="required" class="layui-input">
+                </div>
+            </div>
+
+            <div class="layui-form-item" id="endTimeDom">
+                <label class="layui-form-label">结束营业时间</label>
+                <div class="layui-input-block">
+                    <input type="text" id="endTime" value="" name="endTime" placeholder="请输入结束时间" required
+                        lay-verify="required" class="layui-input">
+                </div>
+            </div>
+
+            <div class="layui-form-item">
+                <label class="layui-form-label">标签</label>
+                <div class="layui-input-block">
+                  <select name="type" id="type" lay-verify="required" required>
+                    <option value=""></option>
+                    <option value="烤肉">烤肉</option>
+                    <option value="日式烧烤">日式烧烤</option>
+                    <option value="火锅">火锅</option>
+                    <option value="快餐">快餐</option>
+                    <option value="东北菜">东北菜</option>
+                    <option value="湘菜">湘菜</option>
+                    <option value="川菜">川菜</option>
+                    <option value="烤鸭">烤鸭</option>
+                  </select>
+                </div>
+            </div>
+
+              
+            <div class="layui-form-item">
+                <label class="layui-form-label">美食简评</label>
+                <div class="layui-input-block">
+                    <input type="text" id="label" value="" name="label" placeholder="请输入美食简评" required
+                      maxlength="20"   lay-verify="required" class="layui-input">
+                </div>
+            </div>
+
+            <div class="layui-form-item">
+                <label class="layui-form-label">展示图片</label>
+                <div class="layui-upload-list" style="display: flex;" >
+                    <img class="layui-upload-img upload-show-img" id="showImg" src="/img/add2.png">
+                    <div id="imgBox" style="display: flex;">
+
+                    </div>
+                </div>
+            </div>
+
+            <div class="layui-form-item">
+                <div class="layui-input-block" style="text-align: center;">
+                    <!-- <button class="layui-btn" lay-submit lay-filter="formDemo" id="submit">立即提交</button> -->
+                    <button class="layui-btn" type="button" onclick="update()" id="submit">立即提交</button>
+                    <button type="reset" onclick="reset()" class="layui-btn layui-btn-primary">重置</button>
+                </div>
+            </div>
+        </form>
+    </div>
+
+    <script type="text/html" id="img">
+        <img style="height: 100px;width: 100px;object-fit: cover;" src="{{d.titleImg}}" alt="">
+    </script>
+
+    <script src="/layui/layui.js"></script>
+    <script src="/http/uploadFiles.js">         
+    </script>
+    <script>
+        // 定义一个address 存储数据
+        var address = []
+        var timer=null
+        function checkAddress() {
+            let value = $('#name').val()
+            let res = address.find(item => item.name == value)
+            if (!res) {
+                return
+            }
+            let addresss = res.address
+            $('#address').val(addresss)
+        }
+        const handlerSetTime = () => {
+            if(timer){
+                clearTimeout(timer)
+            }
+            timer=setTimeout(()=>{
+                getAddress()
+            },1000)
+        }
+        // 地点查询
+        function getAddress() {
+            let value = $('#name').val()
+            let data = {
+                ak: 'PYwrQ1BnS3KEYSbhoGEjvjVPaYyxGsS1',
+                region: '达州',
+                query: value,
+                output: 'json',
+                page_size: 20,
+                page_num: 0,
+                scope: 1,
+                coord_type: 3
+            }
+            let url = "http://api.map.baidu.com/place/v2/search"
+            $.ajax({
+                type: "get", //请求方式
+                async: true, //是否异步
+                url,
+                dataType: "jsonp", //跨域json请求一定是jsonp
+                data, //请求参数
+                success: function (data) {
+                    //请求成功处理，和本地回调完全一样
+                    let res = data.results
+                    address = res
+                    let str = ''
+                    res.forEach((item, index) => {
+                        str += `<option value="${item.name}" >${item.address}</option>`
+                    })
+                    $('#options').html(str)
+                },
+                complete: function () {
+                    //请求完成的处理
+                },
+                error: function () {
+                    //请求出错处理
+                }
+            })
+
+        }
+    </script>
+    <script>
+        var filesTitle = null
+        var filesShow = {}
+        // 用于判断新增或者修改用url
+        var url = '/admin/delicous/add'
+        // 定义修改data用于判断是否修改
+        var dataObj = {}
+        // 定义一个类型，用于判断新增还是修改
+        var addtype = ''
+        // 定义nidex，用于后面全局关闭弹框
+        var indexs = null
+        // 重置添加框数据
+
+        // 设置编辑id
+        var d_id = null
+
+        // 用于判断删除图片
+        var imgArr=[]
+
+        // 删除菜品
+        function deleteFood(id){
+            $.get('/admin/delicous/deleteFood',{id}).then(res => {
+                if(res.code == '200') {
+                    parent.layer.alert('删除成功', function (i) {
+                        selectFood(d_id)
+                        parent.layer.close(i);
+                    })
+                } else {
+                    parent.layer.alert('删除失败', function (i) {
+                        parent.layer.close(i);
+                    })
+                }
+            })
+        }
+
+        // 删除图片
+        function deleteImg(value){
+            if(addtype == 'add') {
+                delete filesShow[value];
+                $('#'+value).remove()
+            }
+            if(addtype == 'update') {
+                delete filesShow[value];
+                imgArr = imgArr.filter(item => item.id !== value)
+                $('#'+value).remove()
+            }
+        }
+
+        function reset(){
+            filesTitle = null
+            filesShow = {}
+            $('#ownimg').attr('src', '/img/add2.png');
+            $('#name').val('');
+            $('#price').val('');
+            let isAllDayArr = $('input[name="isAllDay"]')
+            $('#beginTime').val('');
+            $('#endTime').val('');
+            $('#type').val('');
+            $('#label').val('');
+            $('#address').val('');
+            let isAllDay = null
+            for (item of isAllDayArr) {
+                if (item.title == '否') {
+                    $(item).prop("checked", true);
+                }
+            }
+            $('#beginTimeDom').show()
+            $('#endTimeDom').show()
+            $('#imgBox').html('')
+        }
+
+        // 输入校验
+        function checkinput(){
+            let name = $('#name').val();
+            let price = $('#price').val();
+            let isAllDayArr = $('input[name="isAllDay"]')
+            let beginTime = $('#beginTime').val();
+            let endTime = $('#endTime').val();
+            let type = $('#type').val();
+            let label = $('#label').val();
+            let address = $('#address').val();
+            let isAllDay = null
+            for (item of isAllDayArr) {
+                console.log(isAllDayArr)
+                if (item.checked) {
+                    isAllDay = item.title == '是' ? 1 : 0
+                }
+            }
+
+            let isOver = true
+
+            let checkObj = {name,price,type,label,address}
+            for(item in checkObj){
+                if(!checkObj[item]){
+                    isOver = false
+                }
+            }
+            console.log(isAllDay, isAllDay == 0,typeof isAllDay)
+            if(isAllDay == 0){
+                if(!beginTime){
+                    isOver = false
+                }
+                if(!endTime){
+                    isOver = false
+                }
+            }
+            let params = {name,price,isAllDay,type,label,beginTime,endTime,address}
+
+            return {isOver,params}
+        }
+
+        function update() {
+            let {isOver,params} = checkinput()
+            if(!isOver){
+                parent.layer.alert('请填写完整表单', function (i) {
+                    parent.layer.close(i);
+                })
+                return
+            }
+            let filesArr = []
+            if (addtype == 'add') {
+                if(!filesTitle){
+                    parent.layer.alert('请选择标题图片', function (i) {
+                        parent.layer.close(i);
+                    })
+                    return
+                }
+                for(item in filesTitle){
+                    filesArr.push(filesTitle[item])
+                }
+                if(!filesShow){
+                    parent.layer.alert('请选择内容图片', function (i) {
+                        parent.layer.close(i);
+                    })
+                    return
+                }
+                let hadImg = false
+                for(item in filesShow){
+                    filesArr.push(filesShow[item])
+                    hadImg = true
+                }
+                if(!hadImg){
+                    parent.layer.alert('请选择内容图片', function (i) {
+                        parent.layer.close(i);
+                    })
+                    return
+                }
+            }
+            if(addtype == 'update') {
+                let src = $('#ownimg')[0].src
+                let titleImgChange = false
+                if (src !== 'http://localhost:3000' + dataObj.titleImg) {
+                    titleImgChange = true
+                    for(item in filesTitle){
+                        filesArr.push(filesTitle[item])
+                    }
+                }
+                if(!filesShow && imgArr.length == 0){
+                    parent.layer.alert('请选择内容图片', function (i) {
+                        parent.layer.close(i);
+                    })
+                    return
+                }
+                let hadImg = false
+                for(item in filesShow){
+                    filesArr.push(filesShow[item])
+                    hadImg = true
+                }
+                if(!hadImg  && imgArr.length == 0){
+                    parent.layer.alert('请选择内容图片', function (i) {
+                        parent.layer.close(i);
+                    })
+                    return
+                }
+                let newArr = imgArr.map(item => {
+                    return item.img
+                })
+                params={
+                    ...params,
+                    titleImgChange,
+                    imgArr: JSON.stringify(newArr),
+                    id:dataObj.id
+                }
+            }
+            parent.layer.load()
+            uploadFiles(url,filesArr,params).then(res => {
+                parent.layer.closeAll('loading')
+                //如果上传失败
+                if (res.code === '303') {
+                    let msg = res.msg.sqlMessage || res.msg
+                    parent.layer.alert(msg, function (i) {
+                        parent.layer.close(i);
+                    })
+                    return
+                }
+                if (res.code !== '200' && res.code !== '303') {
+                    parent.layer.alert(res.msg, function (i) {
+                        parent.layer.close(i);
+                    })
+                    return
+                }
+                parent.layer.alert(res.msg, function (i) {
+                    parent.layer.close(i);
+                    location.reload() // 刷新父窗口
+                })
+            })
+
+        }
+      
+        function selectFood(id){
+            parent.layer.load(1)
+            $.get('/admin/delicous/selectFood',{id}).then(res => {
+                parent.layer.closeAll('loading')
+                $('.added-box').remove()
+                res.data.forEach(item => {
+                    $('#out-box').append(`
+                    <div class="food-box added-box">
+                        <div onclick="deleteFood(${item.id})" class="delete-food" >
+                            <img src="/img/delete.png" >
+                        </div>
+                        <img class="layui-upload-img upload-show-img upload-food-img" src="${item.img}">
+                        <div class="food-name">
+                                ${item.name}
+                        </div>
+                    </div>`)
+                })
+            })
+        }
+      
+        //加载模块  
+        layui.use(function () { //亦可加载特定模块：layui.use(['layer', 'laydate', function(){
+            //得到各种内置组件
+            var layer = layui.layer //弹层
+                ,
+                laypage = layui.laypage //分页
+                ,
+                table = layui.table //表格
+                ,
+                upload = layui.upload //上传
+                ,
+                element = layui.element //元素操作
+                ,
+                slider = layui.slider //滑块
+                ,
+                dropdown = layui.dropdown, //下拉菜单
+                laydate = layui.laydate, //日期组件
+                form = layui.form
+
+            // radio监听事件
+            form.on("radio(isAllDay)", function (data) {
+                var val = data.elem.title;
+                if(val == '是') {
+                    $('#beginTimeDom').hide()
+                    $('#endTimeDom').hide()
+                } else {
+                    $('#beginTimeDom').show()
+                    $('#endTimeDom').show()
+                }
+            });
+            
+            //执行一个 table 实例
+            table.render({
+                elem: '#demo',
+                height: 420,
+                url: '/admin/delicous/select' //数据接口
+                    ,
+                title: '用户表',
+                page: true //开启分页
+                    ,
+                toolbar: 'default' //开启工具栏，此处显示默认图标，可以自定义模板，详见文档
+                    ,
+                // toolbar: ['filter', 'print', 'exports'],
+                totalRow: true //开启合计行
+                    ,
+                cols: [
+                    [ //表头
+                        {
+                            type: 'checkbox',
+                            // fixed: 'left'
+                        },
+                        {
+                            field: 'id',
+                            title: 'ID',
+                            width: 80,
+                            sort: true,
+                            // fixed: 'left',
+                            // totalRowText: '合计：'
+                        }, {
+                            field: 'name',
+                            title: '名称',
+                        }, {
+                            field: 'titleImg',
+                            title: '标题图片',
+                            templet: '#img',
+                            style: "height: 100px;text-align: center;"
+                            // totalRow: true 合计开启
+                        // }, {
+                        //     field: 'create_time',
+                        //     title: '创建日期',
+                        }, {
+                            field: 'type',
+                            title: '标签',
+                        }, {
+                            field: 'label',
+                            title: '美食简述',
+                        }, {
+                            field: 'newPrice',
+                            title: '人均价格',
+                        }, {
+                            field: 'openTime',
+                            title: '营业时间',
+                        // }, {
+                        //     field: 'isShow',
+                        //     title: '是否启用',
+                        //     templet: '#isShow',
+                        // }, {
+                        }, 
+                        {
+                            // fixed: 'right',
+                            width: 200,
+                            align: 'center',
+                            toolbar: '#barDemo',
+                            // style:"height: 110px;text-align: center;"
+                        }
+                    ]
+                ]
+            });
+
+            //监听头工具栏事件
+            table.on('toolbar(test)', function (obj) {
+                var checkStatus = table.checkStatus(obj.config.id),
+                    data = checkStatus.data; //获取选中的数据
+                switch (obj.event) {
+                    case 'add':
+                        addtype = 'add'
+                        url = '/admin/delicous/add'
+                        dataObj = {}
+                        reset()
+                        form.render();
+                        //iframe 层
+                        indexs = layer.open({
+                            title: '新增美食',
+                            type: 1,
+                            area: ['700px', '500px'],
+                            shade: 0.8,
+                            shadeClose: true,
+                            fixed: false,
+                            anim: 1,
+                            content: $(
+                            '#add'), //这里content是一个DOM，注意：最好该元素要存放在body最外层，否则可能被其它的相对元素所影响
+                        });
+                        break;
+                    case 'update':
+                        if (data.length === 0) {
+                            layer.msg('请选择一行');
+                        } else if (data.length > 1) {
+                            layer.msg('只能同时编辑一个');
+                        } else {
+                            addtype = 'update'
+                            dataObj = data[0]
+                            url = '/admin/delicous/update'
+                            // layer.alert('编辑 [id]：' + checkStatus.data[0].id);
+                            $('#ownimg').attr('src', data[0].titleImg);
+                            $('#name').val(data[0].name);
+                            $('#price').val(data[0].price);
+                            let isAllDayArr = $('input[name="isAllDay"]')
+                            $('#type').val(data[0].type);
+                            $('#label').val(data[0].label);
+                            $('#address').val(data[0].address);
+                            if(data[0].isAllDay == 1) {
+                                $('#beginTimeDom').hide()
+                                $('#endTimeDom').hide()
+                            } else {
+                                $('#beginTimeDom').show()
+                                $('#endTimeDom').show()
+                                $('#beginTime').val(data[0].beginTime);
+                                $('#endTime').val(data[0].endTime);
+                            }
+                            let isAllDay = null
+                            for (item of isAllDayArr) {
+                                let pd = data[0].isAllDay == 1?'是':'否'
+                                if (item.title == pd) {
+                                    $(item).prop("checked", true);
+                                }
+                            }
+                            $('#imgBox').html('')
+                            imgArr = data[0].imgArr
+                            imgArr.forEach(item => {
+                                $('#imgBox').append(`
+                                    <div class="upload-img-box">
+                                        <div class="upload-img-delete" onclick="deleteImg('${item.id}')" ></div>
+                                        <img class="layui-upload-img upload-show-img" id="${item.id}" src="${item.img}" / >
+                                    </div>
+                                `)
+                            })
+                            form.render();
+                            indexs = layer.open({
+                                title: '修改美食',
+                                type: 1,
+                                area: ['700px', '500px'],
+                                shade: 0.8,
+                                shadeClose: true,
+                                fixed: false,
+                                anim: 1,
+                                content: $(
+                                '#add'), //这里content是一个DOM，注意：最好该元素要存放在body最外层，否则可能被其它的相对元素所影响
+                            });
+                        }
+                        break;
+                    case 'delete':
+                        if (data.length === 0) {
+                            layer.msg('请选择一行');
+                        } else {
+                            let ids = checkStatus.data.map(item => item.id)
+                            layer.confirm('确定删除选中数据？', {
+                                icon: 0,
+                                title: '警告'
+                            }, function (index) {
+                                layer.close(index)
+                                layer.load()
+                                $.post('/admin/delicous/delete', {
+                                    ids
+                                }, (res) => {
+                                    layer.closeAll('loading')
+                                    if (!res || res.code !== '200') {
+                                        layer.msg('删除失败');
+                                        return
+                                    }
+                                    layer.alert('删除成功', {
+                                        icon: 1,
+                                        title: '提示'
+                                    }, function (i) {
+                                        layer.close(i)
+                                        reloadData()
+                                    });
+                                })
+                            })
+                        }
+                        break;
+                };
+            });
+
+            //监听行工具事件
+            table.on('tool(test)', function (obj) { //注：tool 是工具条事件名，test 是 table 原始容器的属性 lay-filter="对应的值"
+                var data = obj.data //获得当前行数据
+                    ,
+                    layEvent = obj.event; //获得 lay-event 对应的值
+                    d_id = data.id
+                if (layEvent === 'typechange') {
+                    layer.open({
+                        title: '设置菜品',
+                        type: 1,
+                        area: ['750px', '600px'],
+                        shade: 0.8,
+                        shadeClose: true,
+                        fixed: false,
+                        anim: 1,
+                        content: $(
+                        '#changeFood'), //这里content是一个DOM，注意：最好该元素要存放在body最外层，否则可能被其它的相对元素所影响
+                    });
+                    selectFood(d_id)
+                }
+            });
+
+            //分页
+            laypage.render({
+                elem: 'pageDemo' //分页容器的id
+                    ,
+                count: 1000 //数据总数
+                    ,
+                limit: 10 //每页显示的数据条数
+                    ,
+                skin: '#1E9FFF' //自定义选中色值
+                    //,layout: ['prev', 'page', 'next', 'count', 'limit', 'refresh', 'skip'] //自定义排版
+                    ,
+                jump: function (obj, first) {
+                    if (!first) {
+                        layer.msg('第' + obj.curr + '页', {
+                            offset: 'b'
+                        });
+                    }
+                }
+            });
+
+            // 重新加载函数
+            function reloadData() {
+                table.reload('demo', {
+                    url: '/admin/delicous/select',
+                    where: {
+                        name: function () {
+                            return $('#searchName').val()
+                        },
+                        type: function () {
+                            return $('#searchType').val()
+                        },
+                    } //设定异步数据接口的额外参数
+                    //,height: 300
+                });
+            }
+
+            // 搜索事件
+            $('#search').click(function () {
+                reloadData()
+            })
+
+            laydate.render({ 
+                elem: '#beginTime'
+                ,type: 'time'
+                }
+            )
+            laydate.render({ 
+                elem: '#endTime'
+                ,type: 'time'
+                }
+            )
+
+            var uploadInst = upload.render({
+                elem: '#ownimg',
+                url //此处用的是第三方的 http 请求演示，实际使用时改成您自己的上传接口即可。
+                    ,
+                acceptMime: 'image/*',
+                auto: false,
+                choose: function (obj) {
+                    filesTitle = obj.pushFile();
+                    obj.preview(function (index, file, result) {
+                        $('#ownimg').attr('src', result); //图片链接（base64）
+                    });
+                },
+                error: function () {}
+            });
+
+            var uploadInst1 = upload.render({
+                elem: '#showImg',
+                url //此处用的是第三方的 http 请求演示，实际使用时改成您自己的上传接口即可。
+                    ,
+                acceptMime: 'image/*',
+                multiple: true,
+                auto: false,
+                choose: function (obj) {
+                    filesShow = obj.pushFile();
+                    obj.preview(function (index, file, result) {
+                        $('#imgBox').append(`
+                            <div class="upload-img-box">
+                                <div class="upload-img-delete" id="dl${index}" ></div>
+                                <img class="layui-upload-img upload-show-img" id="${index}" src="${result}" / >
+                            </div>
+                        `)
+                        $('#dl'+index).on("click",()=>{
+                            deleteImg(index)
+                            uploadInst1.config.elem.next()[0].value = '';
+                        })
+                    });
+                },
+                error: function () {}
+            });
+
+
+            // 处理新增菜品
+            var uploadInst3 = upload.render({
+                elem: '#foodImg',
+                url:'/admin/delicous/addFood' //此处用的是第三方的 http 请求演示，实际使用时改成您自己的上传接口即可。
+                    ,
+                bindAction: '#submitFood',
+                acceptMime: 'image/*',
+                multiple: true,
+                auto: false,
+                data: {
+                    foodName: function () {
+                        return $('#foodName').val();
+                    },
+                    id: function(){
+                        return d_id
+                    }
+                },
+                choose: function (obj) {
+                    obj.preview(function (index, file, result) {
+                        // $('#out-box').append(`
+                        // <div class="food-box">
+                        //     <img class="layui-upload-img upload-show-img upload-food-img" src="${result}">
+                        //     <div class="food-name">
+                        //         1111
+                        //     </div>
+                        // </div>`)
+                        $('#foodImg').attr('src',result)
+                    });
+                },
+                before: function (obj) {
+                    imgLoading = layer.load(1); //风格1的加载
+                },
+                done: function (res) {
+                    layer.closeAll('loading')
+                    // var index = parent.layer.getFrameIndex(window.name); //获取窗口索引
+                    //如果上传失败
+                    if (res.code === '303') {
+                        layer.alert(res.msg, function (i) {
+                            layer.close(i);
+                        })
+                        return
+                    }
+                    if (res.code !== '200' && res.code !== '303') {
+                        layer.alert(res.msg, function (i) {
+                            layer.close(i);
+                        })
+                        return
+                    }
+                    layer.alert(res.msg, function (i) {
+                        $('#foodImg').attr('src','/img/add2.png')
+                        $('#foodName').val('');
+                        selectFood(d_id)
+                        layer.close(i);
+                    })
+                },
+                error: function () {}
+            });
+        });
+    </script>
+</body>
+
+</html>

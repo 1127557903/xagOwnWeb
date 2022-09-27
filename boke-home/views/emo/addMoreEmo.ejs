@@ -1,0 +1,268 @@
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="/layui/css/layui.css">
+    <script src="/jquery/jquery-3.4.1.min.js"></script>
+    <style>
+        .addbox {
+            padding: 20px;
+        }
+
+        .layui-form-item {
+            position: relative;
+        }
+
+        .spot {
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        .botttom {
+            flex: 1;
+            display: flex;
+            overflow: hidden;
+            /* flex-direction: column; */
+        }
+
+        .layui-table-view {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            height: unset !important;
+        }
+
+        .layui-table-box {
+            position: relative;
+            overflow-y: scroll;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .layui-table-total {
+            height: 0px;
+        }
+
+        .layui-table-body {
+            flex: 1;
+        }
+
+        .layui-table-cell {
+            height: unset;
+            padding: 0;
+            text-align: center;
+        }
+
+        .upload-show-img {
+            width: 100px;
+            height: 100px;
+            object-fit: cover;
+            background-clip: padding-box;
+            box-sizing: border-box;
+            display: block;
+        }
+
+        #ownimg {
+            display: block;
+            /* background: #ccc; */
+            object-fit: cover;
+            background-clip: padding-box;
+            box-sizing: border-box;
+        }
+
+        .upload-img-box {
+            position: relative;
+        }
+
+        .upload-img-box:hover .upload-img-delete {
+            display: block;
+        }
+
+        .upload-img-delete {
+            position: absolute;
+            display: none;
+            top: 10px;
+            right: 10px;
+            width: 30px;
+            height: 30px;
+            background: url('/img/delete.png');
+        }
+
+        .food-box {
+            width: 150px;
+            margin-right: 50px;
+            margin-bottom: 10px;
+        }
+
+        .food-box:nth-of-type(4n) {
+            margin-right: 0;
+        }
+
+        .upload-food-img {
+            width: 150px;
+            height: 150px;
+        }
+
+        .food-name {
+            height: 40px;
+            width: 100%;
+            font-size: 18px;
+            line-height: 40px;
+        }
+
+        #test1 {
+            width: 48px;
+            height: 48px;
+            display: block;
+            background: #ccc;
+            object-fit: cover;
+            background-clip: padding-box;
+            box-sizing: border-box;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="addbox">
+        <form class="layui-form">
+            <div class="layui-form-item">
+                <label class="layui-form-label">展示图片</label>
+                <div class="layui-upload-list" style="display: flex;">
+                    <img class="layui-upload-img upload-show-img" id="showImg" src="/img/add2.png">
+                    <div id="imgBox" style="display: flex;flex-wrap: wrap;">
+
+                    </div>
+                </div>
+            </div>
+
+            <div class="layui-form-item">
+                <label class="layui-form-label">表情包名称</label>
+                <div class="layui-input-block">
+                    <input type="text" id="alt" value="" name="alt" placeholder="请输入表情包名称" required
+                        lay-verify="required" class="layui-input">
+                </div>
+            </div>
+
+
+            <div class="layui-form-item">
+                <label class="layui-form-label">表情包类别</label>
+                <div class="layui-input-block">
+                    <select name="type" id="type" lay-verify="required" required>
+                        <option value=""></option>
+                        <% emoCode.forEach(item => { %>
+                        <option value="<%=item.value%>"><%=item.value%></option>
+                        <% }) %>
+                    </select>
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <div class="layui-input-block" style="text-align: center;">
+                    <!-- <button class="layui-btn" lay-submit lay-filter="formDemo" id="submit">立即提交</button> -->
+                    <button class="layui-btn" type="button" onclick="update()" id="submit">立即提交</button>
+                    <button type="reset" onclick="reset()" class="layui-btn layui-btn-primary">重置</button>
+                </div>
+            </div>
+        </form>
+    </div>
+    <script src="/layui/layui.js"></script>
+    <script src="/http/uploadFiles.js">         
+    </script>
+    <script>
+        var filesShow = null
+
+        // 删除图片
+        function deleteImg(value) {
+            delete filesShow[value];
+            $('#' + value).remove()
+        }
+
+        function update(){
+            let alt = $('#alt').val();
+            let type = $('#type').val();
+            let filesArr = []
+            for(item in filesShow){
+                filesArr.push(filesShow[item])
+            }
+            if(!alt || !type || filesArr.length ==0){
+                parent.layer.alert('请填写完整表单', function (i) {
+                    parent.layer.close(i);
+                })
+                return
+            }
+            let params = {
+                alt,
+                type
+            }
+            parent.layer.load()
+            uploadFiles('/admin/emo/addMore',filesArr,params).then(res => {
+                parent.layer.closeAll('loading')
+                //如果上传失败
+                if (res.code === '303') {
+                    let msg = res.msg.sqlMessage || res.msg
+                    parent.layer.alert(msg, function (i) {
+                        parent.layer.close(i);
+                    })
+                    return
+                }
+                if (res.code !== '200' && res.code !== '303') {
+                    parent.layer.alert(res.msg, function (i) {
+                        parent.layer.close(i);
+                    })
+                    return
+                }
+                parent.layer.alert(res.msg, function (i) {
+                    parent.layer.close(i);
+                    location.reload() // 刷新父窗口
+                })
+            })
+        }
+
+        layui.use(['form', 'upload'], function () {
+            var form = layui.form;
+            var upload = layui.upload;
+            //监听提交
+            // form.on('submit(formDemo)', function (data) {
+            //     $.post("/admin/spot/add", data.field, function (result) {
+            //         console.log(result, '数据')
+            //     });
+            //     var index = parent.layer.getFrameIndex(window.name); //获取窗口索引
+            //     parent.layer.close(index); // 调用父级关闭当前窗口
+            //     parent.location.reload(); // 刷新父窗口
+            //     return false;
+            //     console.log(111)
+            // });
+
+            var uploadInst1 = upload.render({
+                elem: '#showImg',
+                url: '/admin/emo/addMore', //此处用的是第三方的 http 请求演示，实际使用时改成您自己的上传接口即可。
+                acceptMime: 'image/*',
+                multiple: true,
+                auto: false,
+                choose: function (obj) {
+                    filesShow = obj.pushFile();
+                    obj.preview(function (index, file, result) {
+                        $('#imgBox').append(`
+                            <div class="upload-img-box">
+                                <div class="upload-img-delete" id="dl${index}" ></div>
+                                <img class="layui-upload-img upload-show-img" id="${index}" src="${result}" / >
+                            </div>
+                        `)
+                        $('#dl' + index).on("click", () => {
+                            deleteImg(index)
+                            uploadInst1.config.elem.next()[0].value = '';
+                        })
+                    });
+                },
+                error: function () {}
+            });
+        });
+    </script>
+</body>
+
+</html>

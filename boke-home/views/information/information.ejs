@@ -1,0 +1,176 @@
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="/layui/css/layui.css">
+    <script src="/jquery/jquery-3.4.1.min.js"></script>
+    <script src="/look/L2Dwidget.min.js"></script>
+    <style>
+        .box{
+            display: flex;
+            height: 100vh;
+        }
+        .box_left{
+            width: 300px;
+            text-align: center;
+        }
+        .box_left img {
+            width: 50px;
+            border-radius: 50%;
+            border: 1px solid #000;
+        }
+        .box_left ul{
+            list-style: none;
+        }
+        .box_left ul li{
+            height: 30px;
+            border-right: 1px solid #1E9FFF;
+            /* border-right-color: #1E9FFF; */
+            line-height: 30px;
+            padding-left: 20px;
+        }
+        .checked{
+            border: 1px solid #1E9FFF!important;
+            border-right-color: #71c0fd!important;
+            background-color: #71c0fd;
+            color: #fff;
+        }
+        .show{
+            display: block!important;
+        }
+        .box_right{
+            flex: 1;
+        }
+        .right_main{
+            display: none;
+            transition: all 1s;
+        }
+    </style>
+</head>
+<body>
+    <div class="box">
+        <div class="box_left">
+            <img src="<%=data.head_pic%>" alt="">
+            <ul id="list">
+                <li class="<%= num === 0 ? 'checked' : '' %>" onclick="checkdiv(0)" >个人信息</li>
+                <li class="<%= num === 1 ? 'checked' : '' %>" onclick="checkdiv(1)">账号安全</li>
+                <li class="<%= num === 2 ? 'checked' : '' %>" onclick="checkdiv(2)">修改密码</li>
+            </ul>
+        </div>
+        <div class="box_right">
+            <div class="right_main <%= num === 0 ? 'show' : '' %>" >
+                <div>
+                    <p>昵稱:<%=data.nickname  || '暂无'%></p>
+                    <p>账号:<%=data.users_name  || '暂无'%></p>
+                    <p>常用ip:<%=data.ip  || '暂无'%></p>
+                    <p>最近登录地址:<%=data.city  || '暂无'%></p>
+                    <p>性别:<%=data.sex || '暂无'%></p>
+                </div>
+            </div>
+            <div class="right_main <%= num === 1 ? 'show' : '' %>">
+                222
+            </div>
+            <div class="right_main <%= num === 2 ? 'show' : '' %>">
+                <div>
+                    <form class="layui-form" action="">
+                        <!-- <div class="layui-form-item">
+                          <label class="layui-form-label">账号</label>
+                          <div class="layui-input-block">
+                            <input type="text" name="title" required  lay-verify="required" placeholder="请输入标题" autocomplete="off" class="layui-input">
+                          </div>
+                        </div> -->
+                        <div class="layui-form-item">
+                          <label class="layui-form-label">密码</label>
+                          <div class="layui-input-inline">
+                            <input type="password" name="password" required lay-verify="required" placeholder="请输入密码" autocomplete="off" class="layui-input">
+                          </div>
+                          <div class="layui-form-mid layui-word-aux">辅助文字</div>
+                        </div>
+                        <div class="layui-form-item">
+                            <label class="layui-form-label">新密码</label>
+                            <div class="layui-input-inline">
+                              <input type="password" name="password" required lay-verify="required" placeholder="请输入密码" autocomplete="off" class="layui-input">
+                            </div>
+                            <div class="layui-form-mid layui-word-aux">辅助文字</div>
+                        </div>
+                        <div class="layui-form-item">
+                            <label class="layui-form-label">重复密码</label>
+                            <div class="layui-input-inline">
+                              <input type="password" name="password" required lay-verify="required" placeholder="请输入密码" autocomplete="off" class="layui-input">
+                            </div>
+                            <div class="layui-form-mid layui-word-aux">辅助文字</div>
+                        </div>
+                        <!-- <div class="layui-form-item layui-form-text">
+                          <label class="layui-form-label">文本域</label>
+                          <div class="layui-input-block">
+                            <textarea name="desc" placeholder="请输入内容" class="layui-textarea"></textarea>
+                          </div>
+                        </div> -->
+                        <div class="layui-form-item">
+                          <div class="layui-input-block">
+                            <button class="layui-btn" lay-submit lay-filter="formDemo">立即提交</button>
+                            <button type="reset" class="layui-btn layui-btn-primary">重置</button>
+                          </div>
+                        </div>
+                      </form>
+                </div>
+            </div>
+        </div>
+    </div>
+<script>
+    // 可以添加事件监听，比如触摸她的时候会弹出点提示
+    L2Dwidget.init({
+        "model": { // 这里改模型，前面后面都要改
+            jsonPath: "/packages/live2d-widget-model-shizuku/assets/shizuku.model.json",
+            "scale": 1
+        },
+        "display": { // 设置看板娘的上下左右位置
+            "position": "left",
+            "width": 150,
+            "height": 300,
+            "hOffset": 0,
+            "vOffset": -20
+        },
+        dialog: {
+            enable: true,
+                script: {
+                'tap body': '哎呀！别碰我！',
+                'tap face': '看来你是完全不懂嘛~',
+            }
+        },
+        "mobile": {
+            "show": true,
+            "scale": 0.5
+        },
+        "react": { // 设置透明度
+            "opacityDefault": 0.7,
+            "opacityOnHover": 0.2
+        }
+    });
+    // 切换选项
+    function checkdiv(value) {
+        let li = $('#list li')
+        let main = $('.right_main')
+        console.log(li,li[0],li.eq(0))
+        for (let i = 0;i<li.length;i++) {
+            li.eq(i).removeClass("checked")
+            main.eq(i).removeClass("show")
+        }
+        li.eq(value).addClass("checked")
+        main.eq(value).addClass("show")
+    }
+    // form表单
+    layui.use('form', function(){
+    var form = layui.form;
+  
+    //监听提交
+    form.on('submit(formDemo)', function(data){
+        layer.msg(JSON.stringify(data.field));
+        return false;
+    });
+});
+</script>
+</body>
+</html>

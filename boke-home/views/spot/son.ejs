@@ -1,0 +1,288 @@
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="/layui/css/layui.css">
+    <script src="/jquery/jquery-3.4.1.min.js"></script>
+
+    <style>
+        .place_img{
+            display: flex;
+            flex-wrap: wrap;
+            overflow-y: scroll;
+        }
+        .upimg{
+            position: relative;
+            width: 138px;
+            border: 1px solid #ccc;
+            margin: 20px;
+            transition: box-shadow 0.3s ease-in-out;
+        }
+        .upimg:hover{
+            box-shadow: 3px 1px 14px;
+        }
+        .upimg img{
+            height: 138px;
+            width: 138px;
+            /* display: block;
+            background: #ccc;
+            object-fit: cover;
+            background-clip: padding-box;
+            box-sizing: border-box; */
+        }
+        .upimg .delImg{
+            position: absolute;
+            top: 0;
+            right: 0;
+            color: red;
+            font-size: 24px;
+            display: none;
+        }
+        .upimg .changeImg{
+            position: absolute;
+            top: 30px;
+            right: 0;
+            color: rgb(65, 136, 243);
+            font-size: 24px;
+            display: none;
+        }
+        .upimg:hover > .delImg{
+            display: block;
+            z-index: 1;
+        }
+        .upimg:hover > .changeImg{
+            display: block;
+            z-index: 1;
+        }
+        /* .upimg:hover{
+            transform: scale(1.1);
+            border: 1px;
+        } */
+        .upimg b{
+            font-size: 14px;
+        }
+        .upimg p{
+            font-size: 12px;
+        }
+        .upimg .type{
+            display: flex;
+        }
+        .upimg .type div{
+            margin-right: 10px;
+            background: rgb(46, 157, 231);
+            padding: 2px;
+            border-radius: 3px;
+            font-size: 12px;
+            color: #fff;
+        }
+        .outBox{
+            display: flex;
+            flex-direction: column;
+        }
+        .bottom{
+            height: 40px;
+            text-align: center;
+        }
+        .addSon{
+            border: 1px dashed #ccc;
+            width: 140px;
+            height: 140px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 20px;
+        }
+        .addIcon{
+            font-size: 100px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="outBox">
+        <div class="place_img" id="place_img">
+            <div class="addSon" onclick="addSon()">
+                <i class="layui-icon addIcon" >&#xe624;</i>
+                <!-- <p>点击上传，或将文件拖拽到此处</p> -->
+                <!-- <div class="layui-hide" id="uploadDemoView">
+                  <hr>
+                  <img src="https://www.layui.com/demo/upload.html" alt="上传成功后渲染" style="max-width: 196px">
+                </div> -->
+            </div>
+            <% for(let i=0;i < data.length;i++) {%>
+            <div class="upimg">
+                <i class="layui-icon delImg" onclick="delImg('<%= JSON.stringify(data[i]) %>')" >&#x1007;</i>
+                <i class="layui-icon changeImg" onclick="changeImg('<%= JSON.stringify(data[i]) %>')" >&#xe642;</i>
+                <img src="<%= data[i].img %>" onclick="showimg('<%= i%>')" alt="">
+                <b><%= data[i].name%></b>
+                <div class="type">
+                    <% let arr = data[i].type.split(',');
+                        for(let j=0;j < arr.length; j++){
+                    %>
+                        <div><%= arr[j] %></div>
+                    <% } %>
+                </div>
+                <p><%= data[i].text%></p>
+            </div>
+            <%}%>
+        </div>
+        <!-- <div class="bottom">
+            <button type="button" class="layui-btn">确定上传</button>
+        </div> -->
+    </div>
+    <script src="/layui/layui.js"></script>
+    <script>
+        function addSon() {
+            parent.layer.open({
+                type: 2,
+                title: '修改子景点',
+                shadeClose: true,
+                shade: 0.8,
+                fixed: false,
+                area: ['500px', '300px'],
+                content: `/admin/spot/son_add?id=<%=id%>` //iframe的url
+            });
+        }
+
+        // 展示图片
+        function showimg(index){
+            var data  = JSON.parse('<%- JSON.stringify(data) %>')
+            parent.shows(data,index)
+        }
+        // 修改列表
+        function changeImg(value){
+            let data = JSON.parse(value)
+            parent.layer.open({
+                type: 2,
+                title: '修改子景点',
+                shadeClose: true,
+                shade: 0.8,
+                fixed: false,
+                area: ['500px', '300px'],
+                content: `/admin/spot/son_update?p_id=${data.p_id}&id=${data.id}` //iframe的url
+            });
+        }
+        // 删除图片
+        function delImg(value){
+            let data = JSON.parse(value)
+            parent.layer.load()
+            parent.layer.confirm('确定删除子景点？',{icon: 0, title:'警告'},function(index){
+                parent.layer.close(index)
+                $.post("/admin/spot/del_son", data,function (result) {
+                    parent.layer.closeAll('loading')
+                    if(!result || result.code!=='200') {
+                        parent.layer.alert(result.data.sqlMessage,{icon: 0, title:'错误'})
+                        return
+                    }
+                    location.reload();
+                    parent.layer.msg('删除成功')
+                });
+            })
+            parent.layer.closeAll('loading')
+        }
+        // console.log(id,'datas')
+        layui.use(['form', 'upload'], function () {
+            var form = layui.form;
+            var upload = layui.upload;
+            
+                        //常规使用 - 普通图片上传
+            var uploadInst = upload.render({
+                elem: '#placeimg',
+                url: '/admin/spot/addimg' //此处用的是第三方的 http 请求演示，实际使用时改成您自己的上传接口即可。
+,
+                bindAction:'#submit',
+                acceptMime: 'image/*',
+                // auto:false,
+                multiple: true,
+                data: {
+                    id: '<%= id %>',
+                },
+                // choose: function(obj){
+                //     // $(".upimg").remove();
+                //     //将每次选择的文件追加到文件队列
+                //     var files = obj.pushFile();
+                //     console.log(files,'文件')
+                    
+                //     //预读本地文件，如果是多文件，则会遍历。(不支持ie8/9)
+                //     obj.preview(function(index, file, result){
+                //     console.log(index); //得到文件索引
+                //     console.log(file); //得到文件对象
+                //     console.log(result); //得到文件base64编码，比如图片
+                //     $('#placeimg').after(`<div class="upimg">
+                //         <i class="layui-icon delImg" id='${index}' >&#x1007;</i>
+                //         <img src="${result}" alt="">
+                //     </div>`)
+
+                //     // 删除页面图片
+                //     $('#'+index).click(function(){
+                //         delete files[index];
+                //         $(this).parent().remove();
+                //     })
+                //     //obj.resetFile(index, file, '123.jpg'); //重命名文件名，layui 2.3.0 开始新增
+                    
+                //     //这里还可以做一些 append 文件列表 DOM 的操作
+                    
+                //     //obj.upload(index, file); //对上传失败的单个文件重新上传，一般在某个事件中使用
+                //     //delete files[index]; //删除列表中对应的文件，一般在某个事件中使用
+                //     });
+                // },
+                before: function (obj) {
+                    imgLoading = layer.load(); //风格1的加载
+                    //预读本地文件示例，不支持ie8
+                    // obj.preview(function (index, file, result) {
+                    //     $('#demo1').attr('src', result); //图片链接（base64）
+                    // });
+
+                    // element.progress('demo', '0%'); //进度条复位
+                    // layer.msg('上传中', {
+                    //     icon: 16,
+                    //     time: 0
+                    // });
+                },
+                done: function (res) {
+                    layer.closeAll('loading')
+                    // var index = parent.layer.getFrameIndex(window.name); //获取窗口索引
+                    //如果上传失败
+                    if (res.code === '303'){
+                        layer.alert('请填写完整表单',function(i){
+                            layer.close(i);
+                        })
+                        return
+                    }
+                    if (res.code !== '200' && res.code !== '303') {
+                        layer.alert('上传失败',function(i){
+                            layer.close(i);
+                        })
+                        return
+                    }
+                    location.reload();
+                    layer.msg('上传成功')
+                },
+                error: function () {
+                    // //演示失败状态，并实现重传
+                    // var demoText = $('#demoText');
+                    // demoText.html(
+                    //     '<span style="color: #FF5722;">上传失败</span> <a class="layui-btn layui-btn-xs demo-reload">重试</a>'
+                    // );
+                    // demoText.find('.demo-reload').on('click', function () {
+                    //     uploadInst.upload();
+                    // });
+                }
+            });
+                    //     //进度条
+        //     ,progress: function(n, elem, e){
+        //       element.progress('demo', n + '%'); //可配合 layui 进度条元素使用
+        //       if(n == 100){
+        //         layer.msg('上传完毕', {icon: 1});
+        //       }
+        //     }
+        //   });
+        });
+
+    </script>
+</body>
+
+</html>

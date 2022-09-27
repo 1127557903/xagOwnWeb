@@ -1,0 +1,23 @@
+.web-phone{
+    max-width: 400px;
+    margin: 0 auto;
+    height: 100vh;
+}
+.ph-btn{
+    cursor: pointer;
+    width: 50px;
+    height: 26px;
+    border-radius: 2px;
+    background: #ececec;
+    color: #858585;
+    font-size: 14px;
+    box-sizing: border-box;
+}
+.ph-btn-primary{
+    background: #1e9fff;
+    color: #fff;
+}
+.ph-btn-line{
+    border: 1px solid #858585;
+    background: #fff;
+}

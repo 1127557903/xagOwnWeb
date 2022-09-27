@@ -1,0 +1,163 @@
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="/layui/css/layui.css">
+    <script src="/jquery/jquery-3.4.1.min.js"></script>
+    <style>
+        .detail{
+            background-color: #f2f2f2;
+            padding: 10px;
+        }
+        .layui-card-body img{
+            width: 300px;
+        }
+        .tags{
+            padding: 3px 5px;
+            background-color: darkgray;
+            color: #fff;
+            border-radius: 3px;
+        }
+        .address{
+            color: rgb(122,122,122);
+            font-size: 14px;
+        }
+        .address span{
+            margin: 0 10px;
+        }
+        .address span:first-child{
+            margin-left: 0;
+        }
+        .line-title{
+            width: 30px;
+            font-size: 16px;
+            background: #1488e7;
+            color: #fff;
+            text-align: center;
+        }
+        .imgs-card{
+            display: flex;
+        }
+        .imgs-card img{
+            width: 100px;
+            height: 100px;
+            display: block;
+            background: #ccc;
+            object-fit: cover;
+            background-clip: padding-box;
+            box-sizing: border-box;
+        }
+        .son_place{
+            display: flex;
+        }
+        .son_box{
+            width: 100px;
+            margin: 5px;
+            font-size: 14px;
+            line-height: unset;
+        }
+        .son_box div{
+            font-family: "宋体";
+            overflow: hidden;
+            white-space: nowrap;
+            text-overflow: ellipsis;
+        }
+        .son_box h3{
+            overflow: hidden;
+            white-space: nowrap;
+            text-overflow: ellipsis;
+        }
+        .son_box p{
+            font-family: "宋体";
+            color: rgb(115, 220, 252);
+        }
+        .son_box img{
+            width: 100px;
+            height: 100px;
+            display: block;
+            background: #ccc;
+            object-fit: cover;
+            background-clip: padding-box;
+            box-sizing: border-box;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="detail">
+        <div class="layui-card">
+            <div class="layui-card-header">图片</div>
+            <div class="layui-card-body imgs-card">
+                <div class="line-title">
+                    主题图片
+                </div>
+                <img src="<%= data.img %>" onclick="showimg(0,'<%= JSON.stringify(data) %>')" alt="">
+                <% if(imgs.length !== 0) { %>
+                <div class="line-title">
+                    景点图片
+                </div>
+                <% } %>
+                <% for(let i=0;i < imgs.length;i++) { %>
+                    <img src="<%= imgs[i].img %>" onclick="showimgs('<%= i %>','<%= JSON.stringify(imgs) %>')" alt="">
+                <% } %> 
+            </div>
+        </div>
+        <div class="layui-card">
+            <div class="layui-card-header">基础信息</div>
+            <div class="layui-card-body">
+                <h2><%= data.name %></h2>
+                <p class="address"><span><%= data.address %></span> | <span><%= data.play %></span> | <span>推荐游玩<%= data.days %>天</span></p>
+                <div>
+                    <% var tagArr = data.label.split(',');
+                        for(item in tagArr) {
+                    %>
+                    <span class="tags"><%= tagArr[item] %></span>
+                    <% } %>
+                </div>
+            </div>
+        </div>
+        <div class="layui-card">
+            <div class="layui-card-header">景点介绍</div>
+            <div class="layui-card-body">
+                <div>
+                    <span style="font-weight:600;color:#000;">印象：</span><%= data.impression %>
+                </div>
+                <div>
+                    <span style="font-weight:600;color:#000;">简介：</span><%= data.symbol %>
+                </div>
+            </div>
+        </div>
+        <% if(sons.length !== 0) { %>
+        <div class="layui-card">
+            <div class="layui-card-header">子景点</div>
+            <div class="layui-card-body son_place">
+                <% for(let i=0;i < sons.length;i++) { %>
+                <div class="son_box">
+                    <img src="<%= sons[i].img %>" onclick="showimgs('<%= i %>','<%= JSON.stringify(sons) %>')" alt="">
+                    <h3><%= sons[i].name %></h3>
+                    <div><%= sons[i].type.split(',').join('·')  %></div>
+                    <p><%= sons[i].text %></p>
+                </div>
+                <% } %>
+            </div>
+        </div>
+        <%}%>
+    </div>
+    <script src="/layui/layui.js"></script>
+    <script>
+        // 展示图片
+        function showimg(index,datas){
+            var data  = [JSON.parse(datas)]
+            parent.shows(data,index)
+        }
+        function showimgs(index,datas){
+            var data  = JSON.parse(datas)
+            parent.shows(data,index)
+        }
+    </script>
+</body>
+
+</html>

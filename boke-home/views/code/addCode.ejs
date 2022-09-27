@@ -1,0 +1,122 @@
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="/layui/css/layui.css">
+    <script src="/jquery/jquery-3.4.1.min.js"></script>
+    <style>
+        .addbox {
+            padding: 20px;
+        }
+
+        .layui-form-item {
+            position: relative;
+        }
+
+        .removeInput {
+            position: absolute;
+            left: 0px;
+            top: 50%;
+            transform: translate(0,-50%);
+        }
+
+        #test1 {
+            width: 48px;
+            height: 48px;
+            display: block;
+            background: #ccc;
+            object-fit: cover;
+            background-clip: padding-box;
+            box-sizing: border-box;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="addbox">
+        <form class="layui-form" action="/admin/code/addCode" method="POST">
+            <div class="layui-form-item">
+                <label class="layui-form-label">码表名</label>
+                <div class="layui-input-block">
+                    <input type="text" id="name" value="" name="name" placeholder="请输入码表名" maxlength="20" required
+                        lay-verify="required" class="layui-input">
+                </div>
+            </div>
+
+            <div class="layui-form-item">
+                <label class="layui-form-label">码表编码</label>
+                <div class="layui-input-block">
+                    <input type="text" id="code" value="" name="code" placeholder="请输入码表编码" maxlength="20" required
+                        lay-verify="required" class="layui-input">
+                </div>
+            </div>
+
+            <div class="layui-form-item">
+                <label class="layui-form-label">码值</label>
+                <div class="layui-input-block">
+                    <input type="text" id="value" value="" name="value" placeholder="请输入码值" maxlength="20" required
+                        lay-verify="required" class="layui-input">
+                </div>
+            </div>
+            <div id="inputbox">
+
+            </div>
+
+            <div class="layui-form-item">
+                <div class="layui-input-block" style="text-align: center;">
+                    <button class="layui-btn" lay-submit lay-filter="formDemo" id="submit">立即提交</button>
+                    <!-- <button class="layui-btn" type="button" id="submit">立即提交</button> -->
+                    <button type="reset" class="layui-btn layui-btn-primary">重置</button>
+                    <button class="layui-btn" type="button" class="layui-btn layui-btn-primary"
+                        onclick="addInput()">添加行</button>
+                </div>
+            </div>
+        </form>
+    </div>
+    <script src="/layui/layui.js"></script>
+    <script>
+        let index = 0
+        const addInput = () => {
+            index++
+            $('#inputbox').append(`
+                <div class="layui-form-item" id="id${index}" >
+                    <label class="layui-form-label">码值</label>
+                    <div class="layui-input-block">
+                        <input type="text" id="value" value="" name="value" placeholder="请输入码值" maxlength="20" required
+                            lay-verify="required" class="layui-input">
+                    </div>
+                    <div class="removeInput">
+                        <button type="button" onclick="removeInput('id${index}')" class="layui-btn layui-btn-sm">
+                            <i class="layui-icon layui-icon-subtraction"></i>
+                          </button>
+                    </div>
+                </div>
+            `)
+        }
+
+        const removeInput = (id) => {
+            $('#' + id).remove()
+        }
+
+        layui.use(['form', 'upload'], function () {
+            var form = layui.form;
+            var upload = layui.upload;
+            //监听提交
+            // form.on('submit(formDemo)', function (data) {
+            //     $.post("/admin/spot/add", data.field, function (result) {
+            //         console.log(result, '数据')
+            //     });
+            //     var index = parent.layer.getFrameIndex(window.name); //获取窗口索引
+            //     parent.layer.close(index); // 调用父级关闭当前窗口
+            //     parent.location.reload(); // 刷新父窗口
+            //     return false;
+            //     console.log(111)
+            // });
+        });
+    </script>
+</body>
+
+</html>
