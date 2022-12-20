@@ -3,23 +3,43 @@ import {
   Toast
 } from 'vant';
 import store from '../store';
-import { TOKEN } from '../store/constants';
+import { TOKEN,EQUIPMENT } from '../store/constants';
+import { ElMessage } from 'element-plus'
 
 var instance = axios.create({
   baseURL: '/api',
-  timeout: 10000,
+  timeout: 80000,
 });
 
-const get = (url, data = {}) => {
+// 提示根据当前设备判断使用提示类型
+const hints = (res) =>{
+  const equipment = store.getters[EQUIPMENT]
+  if(equipment == '手机'){
+    if (res.code == '200') {
+      Toast.success(res.msg);
+    } else {
+      Toast.fail(res.msg);
+    }
+  } else if(equipment == '电脑'){
+    if (res.code == '200') {
+      ElMessage({
+        message: res.msg,
+        type: 'success',
+      })
+    } else {
+      ElMessage.error(res.msg)
+    }
+  }
+}
+
+const get = (url, data = {},config={}) => {
   return new Promise((resolve, reject) => {
     console.log(data, '查询数据')
     instance.get(url, {
         params: data
-      })
+      },config)
       .then(function (res) {
-        if (res.data.code !== '200') {
-          Toast.fail(res.data.msg);
-        }
+        hints(res.data)
         resolve(res.data);
       })
       .catch(function (err) {
@@ -28,14 +48,12 @@ const get = (url, data = {}) => {
   })
 }
 
-const post = (url, data = {}) => {
+const post = (url, data = {},config={}) => {
   return new Promise((resolve, reject) => {
     console.log(data, '查询数据')
-    instance.post(url, data)
+    instance.post(url, data,config)
       .then(function (res) {
-        if (res.data.code !== '200') {
-          Toast.fail(res.data.msg);
-        }
+        hints(res.data)
         resolve(res.data);
       })
       .catch(function (err) {
@@ -44,18 +62,17 @@ const post = (url, data = {}) => {
   })
 }
 
-const file = (url, data = {}) => {
+const file = (url, data = {},config={}) => {
   return new Promise((resolve, reject) => {
     console.log(data, '查询数据')
     instance.post(url, data, {
+        ...config,
         headers: {
           "Content-Type": "multipart/from-data"
-        }
+        },
       })
       .then(function (res) {
-        if (res.data.code !== '200') {
-          Toast.fail(res.data.msg);
-        }
+        hints(res.data)
         resolve(res.data);
       })
       .catch(function (err) {
@@ -72,11 +89,13 @@ instance.interceptors.request.use(function (config) {
       'Authorization': 'Bearer ' + token
     } : {}
   }
-  Toast.loading({
-    message: '加载中...',
-    forbidClick: true,
-    duration: 0
-  });
+  if(!config.notLoading){
+    Toast.loading({
+      message: '加载中...',
+      forbidClick: true,
+      duration: 0
+    });
+  }
   // 在发送请求之前做些什么，例如加入token
   return config;
 }, function (error) {

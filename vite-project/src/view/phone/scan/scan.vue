@@ -19,7 +19,7 @@ import { reactive, ref } from "@vue/reactivity";
 import { onMounted } from "@vue/runtime-core";
 import jsQR from "jsqr";
 import { get } from "@/service";
-
+import { Dialog } from 'vant';
 import componentsBack from "@/components/common/back.vue";
 
 const customData = reactive({
@@ -148,7 +148,22 @@ const drawImage = async () => {
 // 处理扫描结果
 const handleRequest = (result) => {
   get(result).then((res) => {
-    alert(res.msg);
+    if(res.code == 200) {
+      Dialog.confirm({
+        title: '登录成功',
+        message:
+          '请确认是否需要登录',
+      })
+        .then(() => {
+          // on confirm
+          get('/login/sureCodeLogin?code='+res.data.code).then(result => {
+            alert(result.msg)
+          })
+        })
+        .catch(() => {
+          // on cancel
+        });
+    }
   });
 };
 

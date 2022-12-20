@@ -21,7 +21,7 @@ const jwtt = require("express-jwt")
 // const createError = require("http-errors");
 var {PRI_KEY} = require('../../config/jwtpass')
 
-const passPath = ['/api','/api/login','/api/login/setcode','/api/login/getcode','/api/login/register','/api/emo/selectAll']
+const passPath = ['/api','/api/login','/api/login/setcode','/api/login/register','/api/login/sendEmailCode','/api/emo/selectAll','/api/login/codeLogin','/api/login/emailLogin']
 router.use(jwtt({ secret: PRI_KEY }).unless({ path:passPath }));
 
 router.use(cors());
