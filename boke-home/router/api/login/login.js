@@ -26,11 +26,11 @@ router.post('/',async (req,res)=>{
     }
     // let token = await jwt.sign({id:data[0].id,username},PRI_KEY,{ expiresIn: '30s' })
     let token = await jwt.sign({id:data[0].id,username},PRI_KEY,{})
-    let {nickName,sex,age,tel,email,state} = data[0]
+    let {nick_name,sex,age,tel,email,state,head_img} = data[0]
     res.send({
         code: '200',
         msg: '登陆成功',
-        data: {token,user:{nickName,sex,age,tel,email,state,username}}
+        data: {token,user:{nick_name,sex,age,tel,email,state,username,head_img}}
     })
 })
 
@@ -239,12 +239,12 @@ router.post('/emailLogin',async(req,res) => {
         })
         return
     }
-    const {nickName,sex,age,tel,state,username} = data[0]
+    const {nick_name,sex,age,tel,state,username,head_img} = data[0]
     let token = await jwt.sign({id:data[0].id,username:data[0].username},PRI_KEY,{})
     res.send({
         code: '200',
         msg: '登录成功',
-        data: {token,user:{nickName,sex,age,tel,email,state,username}}
+        data: {token,user:{nick_name,sex,age,tel,email,state,username,head_img}}
     })
 })
 module.exports = router

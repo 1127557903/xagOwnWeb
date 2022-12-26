@@ -1,6 +1,6 @@
 <template>
   <div class="back jc-sb ai-c">
-    <span class="icon iconfont icon-arrow-left-bold"></span>
+    <span class="icon iconfont icon-arrow-left-bold" @click="router.go(-1)" ></span>
     <span>{{ title }}</span>
     <span class="right d-f ai-c" @click="rightClick()" >
       <span class="icon iconfont"  :class="[rightIcon]" ></span>
@@ -9,6 +9,8 @@
   </div>
 </template>
 <script setup>
+import { useRouter } from 'vue-router';
+const router = useRouter()
 defineProps({
   title: {
     type: String,
@@ -26,7 +28,6 @@ defineProps({
 const emit = defineEmits(['rightClick'])
 
 const rightClick = () => {
-  console.log(111)
   emit('rightClick')
 }
 </script>

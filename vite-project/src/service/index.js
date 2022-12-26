@@ -5,11 +5,13 @@ import {
 import store from '../store';
 import { TOKEN,EQUIPMENT } from '../store/constants';
 import { ElMessage } from 'element-plus'
-
+import configData from '@/config/config';
+import { ElLoading } from 'element-plus'
 var instance = axios.create({
   baseURL: '/api',
-  timeout: 80000,
+  timeout: configData.timeout,
 });
+var isLoadingHttpNum = 0; //正在执行的loading的请求
 
 // 提示根据当前设备判断使用提示类型
 const hints = (res) =>{
@@ -32,6 +34,38 @@ const hints = (res) =>{
   }
 }
 
+const hints2 = (msg,type) => {
+  const equipment = store.getters[EQUIPMENT]
+  if(equipment == '手机'){
+    if(type == 'success'){
+      Toast.success(msg);
+    } else if(type == 'error') {
+      Toast.fail(msg)
+    } else if(type == 'loading') {
+      Toast.loading({
+        message: msg?msg:'加载中...',
+        forbidClick: true,
+        duration: 0
+      });
+    } else if(type == 'clear') {
+      Toast.clear();
+    }
+  } else if(equipment == '电脑'){
+    if(type == 'success'){
+      ElMessage({
+        message: msg,
+        type: 'success',
+      })
+    } else if(type == 'error') {
+      ElMessage.error(msg)
+    } else if(type == 'loading') {
+      ElLoading.service({text:msg?msg:'加载中...'})
+    } else if(type == 'clear'){
+      ElLoading.service({text:msg?msg:'加载中...'}).close()
+    }
+  }
+}
+
 const get = (url, data = {},config={}) => {
   return new Promise((resolve, reject) => {
     console.log(data, '查询数据')
@@ -39,7 +73,6 @@ const get = (url, data = {},config={}) => {
         params: data
       },config)
       .then(function (res) {
-        hints(res.data)
         resolve(res.data);
       })
       .catch(function (err) {
@@ -53,7 +86,6 @@ const post = (url, data = {},config={}) => {
     console.log(data, '查询数据')
     instance.post(url, data,config)
       .then(function (res) {
-        hints(res.data)
         resolve(res.data);
       })
       .catch(function (err) {
@@ -72,7 +104,6 @@ const file = (url, data = {},config={}) => {
         },
       })
       .then(function (res) {
-        hints(res.data)
         resolve(res.data);
       })
       .catch(function (err) {
@@ -90,11 +121,9 @@ instance.interceptors.request.use(function (config) {
     } : {}
   }
   if(!config.notLoading){
-    Toast.loading({
-      message: '加载中...',
-      forbidClick: true,
-      duration: 0
-    });
+    // url做唯一标识
+    isLoadingHttpNum++
+    hints2(null,'loading')
   }
   // 在发送请求之前做些什么，例如加入token
   return config;
@@ -103,16 +132,22 @@ instance.interceptors.request.use(function (config) {
   return Promise.reject(error);
 });
 instance.interceptors.response.use(function (response) {
-  // 在发送请求之前做些什么，例如加入token
-  Toast.clear();
-  return response;
+  isLoadingHttpNum--
+  // 在发送请求完成后
+  hints(response.data)
+  if(!isLoadingHttpNum){
+    hints2(null,'clear')
+  }  return response;
 }, function (error) {
-  alert(error.toString())
-  Toast.clear();
-  if (error.toString() == 'Error: timeout of 10000ms exceeded') {
-    Toast.fail('请求超时，请重试！')
+  console.log(error.toString())
+  isLoadingHttpNum--
+  if(!isLoadingHttpNum){
+    hints2(null,'clear')
+  }
+  if (error.toString() == `AxiosError: timeout of ${configData.timeout}ms exceeded`) {
+    hints2('请求超时，请重试！','error')
   } else {
-    Toast.fail('请求错误，请重试！')
+    hints2(error.toString(),'error')
   }
   return Promise.reject(error);
 });

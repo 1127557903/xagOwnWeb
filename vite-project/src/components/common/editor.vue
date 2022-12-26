@@ -152,6 +152,7 @@ const setImage = () => {
 
 const handleSubmit = () => {
     console.log(editorRef.value.innerHTML)
+    return editorRef.value.innerHTML
 }
 
 defineExpose({

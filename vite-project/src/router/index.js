@@ -19,7 +19,7 @@ let router = createRouter({
         {
             path: '/',
             meta: {
-                required: true
+                required: false
             },
             name: 'index',
             component: () => import('@/view/index.vue')
@@ -29,12 +29,15 @@ let router = createRouter({
     ]
 })
 
+// 路由拦截器
 router.beforeEach((to, from, next) => {
     let token = store.getters[TOKEN]
     let {
         required
     } = to.meta
+    let {fullPath} = to
     let equipment = store.getters[EQUIPMENT]
+    // 判断设备
     if(!equipment){
         equipment = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
         navigator.userAgent) ? '手机' : '电脑';
@@ -44,7 +47,7 @@ router.beforeEach((to, from, next) => {
         Dialog.alert({
             message: '请先登录！',
         }).then(() => {
-            next(equipment == '电脑' ? '/pc/pcLogin' : '/phone/phLogin')
+            next({name:equipment == '电脑' ? 'pcLogin' : 'phLogin',params:{fullPath}})
         });
         return
     }

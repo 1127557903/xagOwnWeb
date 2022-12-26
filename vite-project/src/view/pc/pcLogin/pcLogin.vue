@@ -48,6 +48,19 @@
                 />
               </el-form-item>
               <el-form-item>
+                <div class="jc-sb w-f" >
+                  <el-button
+                    type="primary"
+                    link
+                    @click="linkto('/pc/register')"
+                  >用户注册</el-button>
+                  <el-button
+                    type="primary"
+                    link
+                  >忘记密码</el-button>
+                </div>
+              </el-form-item>
+              <el-form-item>
                 <el-button
                   type="primary"
                   style="width: 100%"
@@ -121,7 +134,7 @@ import qrcodeVue from "@/components/common/qrcode.vue";
 import { reactive, ref } from "@vue/reactivity";
 import { computed, onMounted } from "@vue/runtime-core";
 import { post } from "../../../service";
-import { useRouter } from "vue-router"; 
+import { useRouter,useRoute } from "vue-router"; 
 import store from "@/store";
 import {UPDATE_TOKEN,UPDATE_USER_INFO} from "@/store/constants"
 // 登录表单绑定
@@ -138,6 +151,7 @@ const curretData = reactive({
 });
 
 const router = useRouter()
+const route = useRoute()
 
 // 切换登录方式
 const changeLoginType = (value) => {
@@ -160,23 +174,25 @@ const isShowEmailCodeBtn = computed(() => {
 // 发送邮箱验证码
 const sendEmailCode = () => {
   post('/login/sendEmailCode',{email:loginFrom.email}).then(res => {
-    curretData.timeOut = 60
-    var timer = setInterval(() => {
-      if(curretData.timeOut == 0) {
-        clearTimeout(timer)
-      }else {
-        curretData.timeOut--
-      }
-    },1000)
+    if(res.code == '200') {
+      curretData.timeOut = 60
+      var timer = setInterval(() => {
+        if(curretData.timeOut == 0) {
+          clearTimeout(timer)
+        }else {
+          curretData.timeOut--
+        }
+      },1000)
+    }
   })
 }
 
 const handleEmailLogin = () => {
   post('/login/emailLogin',{email:loginFrom.email,code:loginFrom.code}).then(res => {
     if(res.code == '200'){
-      store.commit(UPDATE_TOKEN,res.token)
-      store.commit(UPDATE_USER_INFO,res.user)
-      router.push('/pc')
+      store.commit(UPDATE_TOKEN,res.data.token)
+      store.commit(UPDATE_USER_INFO,res.data.user)
+      router.push(route.params.fullPath)
     }
   })
 }
@@ -184,11 +200,15 @@ const handleEmailLogin = () => {
 const handleLogin = () => {
   post('/login',{username:loginFrom.username,password:loginFrom.password}).then(res => {
     if(res.code == '200'){
-      store.commit(UPDATE_TOKEN,res.token)
-      store.commit(UPDATE_USER_INFO,res.user)
-      router.push('/pc')
+      store.commit(UPDATE_TOKEN,res.data.token)
+      store.commit(UPDATE_USER_INFO,res.data.user)
+      router.push(route.params.fullPath)
     }
   })
+}
+// 跳转页面
+const linkto = (value) => {
+  router.push(value)
 }
 
 onMounted(() => {});

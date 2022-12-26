@@ -39,7 +39,7 @@ import { Toast } from "vant";
 import store from "@/store";
 import { computed } from "@vue/runtime-core";
 import { UPDATE_USER_INFO,USER_INFO,UPDATE_TOKEN } from "@/store/constants"
-import { useRouter } from "vue-router";
+import { useRouter,useRoute } from "vue-router";
 
 
 const customData = reactive({
@@ -48,20 +48,19 @@ const customData = reactive({
 });
 
 const router = useRouter()
+const route = useRoute()
 
 const userInfo = computed(() => {
   return store.getters[USER_INFO]
 })
 
-console.log(userInfo)
 
 const onSubmit = (values) => {
   post("/login", values).then((res) => {
     if (res.code === "200") {
-      Toast.success(res.msg);
       store.commit(UPDATE_USER_INFO,res.data.user)
       store.commit(UPDATE_TOKEN,res.data.token)
-      router.push('/phone')
+      router.push(route.params.fullPath)
     }
   });
 };

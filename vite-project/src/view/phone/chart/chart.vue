@@ -129,6 +129,7 @@ defineProps({
     default: false,
   },
 });
+const emit = defineEmits(['submit'])
 
 const editorRef = ref(null);
 const outSwiperRef = ref(null);
@@ -269,7 +270,8 @@ const getData = () => {
 };
 
 const handleSubmit = ()=>{
-  editorRef.value.handleSubmit();
+  const data = editorRef.value.handleSubmit();
+  emit('submit',data)
 }
 
 onMounted(() => {
@@ -314,6 +316,10 @@ onMounted(() => {
     }
   }
   .chart-inner {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
     .back-box {
       background-color: #6868684f;
       flex: 1;

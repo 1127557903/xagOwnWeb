@@ -20,8 +20,9 @@ const emoRouter = require('../api/emo/emo')
 const jwtt = require("express-jwt")
 // const createError = require("http-errors");
 var {PRI_KEY} = require('../../config/jwtpass')
+const config = require('../../config/config')
 
-const passPath = ['/api','/api/login','/api/login/setcode','/api/login/register','/api/login/sendEmailCode','/api/emo/selectAll','/api/login/codeLogin','/api/login/emailLogin']
+const passPath = config.passPath
 router.use(jwtt({ secret: PRI_KEY }).unless({ path:passPath }));
 
 router.use(cors());
@@ -40,6 +41,8 @@ router.use('/emo',emoRouter)
 
 
 router.use((err,req,res,next)=>{
+    console.log(err,'err')
+    console.log(err.name,'err')
     if (err.name === 'UnauthorizedError') {
         res.send({
             code: '304',
