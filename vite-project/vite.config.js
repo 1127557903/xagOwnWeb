@@ -11,6 +11,7 @@ import styleImport, {
 import config from './src/config/config';
 // https: //vitejs. dev/config/
 export default defineConfig({
+  assetsInclude: ['​**/*.glb', '​**/*.gltf'],  // 明确声明二进制文件类型
   server: {
     host: '0.0.0.0',
     https: true, //是否启用https
@@ -53,5 +54,13 @@ export default defineConfig({
         additionalData: '@import "@/assets/scss/index.scss";'
       }
     }
+  },
+  chainWebpack: config => {
+    config.module
+      .rule('glb')
+      .test(/\.glb$/)
+      .use('file-loader')
+      .loader('file-loader')
+      .options({ name: 'assets/[name].[hash:8].[ext]' })
   }
 })

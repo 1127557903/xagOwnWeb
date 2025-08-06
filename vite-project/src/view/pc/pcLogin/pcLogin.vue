@@ -137,6 +137,7 @@ import { post } from "../../../service";
 import { useRouter,useRoute } from "vue-router"; 
 import store from "@/store";
 import {UPDATE_TOKEN,UPDATE_USER_INFO} from "@/store/constants"
+
 // 登录表单绑定
 const loginFrom = reactive({
   username: "",
