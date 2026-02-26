@@ -152,4 +152,92 @@ instance.interceptors.response.use(function (response) {
   return Promise.reject(error);
 });
 
-export {get,post,file}
+// 请求外网地址（代理写在里面）
+var outInstance = axios.create({
+  baseURL: '',
+  timeout: configData.timeout,
+});
+
+const outGet = (url, data = {},config={}) => {
+  return new Promise((resolve, reject) => {
+    console.log(data, '查询数据')
+    outInstance.get(url, {
+        params: data
+      },config)
+      .then(function (res) {
+        resolve(res.data);
+      })
+      .catch(function (err) {
+        reject(err)
+      });
+  })
+}
+
+const outPost = (url, data = {},config={}) => {
+  return new Promise((resolve, reject) => {
+    console.log(data, '查询数据')
+    outInstance.post(url, data,config)
+      .then(function (res) {
+        resolve(res.data);
+      })
+      .catch(function (err) {
+        reject(err)
+      });
+  })
+}
+
+const outFile = (url, data = {},config={}) => {
+  return new Promise((resolve, reject) => {
+    console.log(data, '查询数据')
+    outInstance.post(url, data, {
+        headers: {
+          "Content-Type": "multipart/from-data"
+        },
+        ...config,
+      })
+      .then(function (res) {
+        resolve(res.data);
+      })
+      .catch(function (err) {
+        reject(err)
+      });
+  })
+}
+
+outInstance.interceptors.request.use(function (config) {
+  config = {
+    ...config
+  }
+  if(!config.notLoading){
+    // url做唯一标识
+    isLoadingHttpNum++
+    hints2(null,'loading')
+  }
+  // 在发送请求之前做些什么，例如加入token
+  return config;
+}, function (error) {
+  // 对请求错误做些什么
+  return Promise.reject(error);
+});
+outInstance.interceptors.response.use(function (response) {
+  isLoadingHttpNum--
+  // 在发送请求完成后
+  hints(response.data)
+  if(!isLoadingHttpNum){
+    hints2(null,'clear')
+  }  return response;
+}, function (error) {
+  console.log(error.toString())
+  isLoadingHttpNum--
+  if(!isLoadingHttpNum){
+    hints2(null,'clear')
+  }
+  if (error.toString() == `AxiosError: timeout of ${configData.timeout}ms exceeded`) {
+    hints2('请求超时，请重试！','error')
+  } else {
+    hints2(error.toString(),'error')
+  }
+  return Promise.reject(error);
+});
+
+export {get,post,file,outGet,outPost,outFile}

@@ -27,6 +27,11 @@ export default defineConfig({
         changeOrigin: true,
         rewrite: (path) => path.replace(/^\/api/, '/api'),
       },
+      '/api2': {
+        target: 'https://maas-api.cn-huabei-1.xf-yun.com',
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/api2/, '/'),
+      },
     },
   },
   devServer: {

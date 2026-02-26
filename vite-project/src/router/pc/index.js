@@ -47,6 +47,20 @@ const PCRouter = [{
             required: false
         },
         component: () => import('@/view/pc/studant/three.vue')  
+    },{
+        path: 'tools',
+        name: 'tools',
+        meta: {
+            required: false
+        },
+        component: () => import('@/view/pc/tools/index.vue')  
+    },{
+        path: 'ai',
+        name: 'ai',
+        meta: {
+            required: false
+        },
+        component: () => import('@/view/pc/tools/ai/index.vue')  
     }
     ]
 }]
